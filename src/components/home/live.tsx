@@ -41,15 +41,15 @@ const Live = () => {
   return (
     <Main>
       <Header>
-        박영훈
+        임석의
         <hr />
-        김현주
+        김민지
       </Header>
 
       <p>
         결혼식 생중계 준비중 입니다.
         <br />
-        <Highlight>10/3 12시</Highlight>에 다시 방문해주세요 💕
+        <Highlight>6/27 12시</Highlight>에 다시 방문해주세요 💕
       </p>
       <LinkWrap>
         <Link href="/">

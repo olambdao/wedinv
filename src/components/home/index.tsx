@@ -1,29 +1,19 @@
 import { Copy, EmojiLookLeft, EmojiLookRight, Pin } from "iconoir-react";
-import Image from "next/image";
 import Link from "next/link";
 import React, {
   Fragment,
   MouseEventHandler,
-  useCallback,
   useEffect,
   useRef,
   useState,
 } from "react";
-import QuickPinchZoom, {
-  make3dTransformValue,
-  UpdateAction,
-} from "react-quick-pinch-zoom";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import styled, { css } from "styled-components";
+import styled, { css, keyframes } from "styled-components";
 import useSWR from "swr";
 
 import { useSessionStorage } from "@/common/hooks/useStorage";
 import timeDiffFormat from "@/common/utils/timeDiffFormat";
 import Modal from "@/components/common/Modal";
 import { Content } from "@/content";
-import coverPic from "@/public/photos/cover_min.jpg";
-import mapPic from "@/public/photos/map.gif";
 import { GetTalkListResponse, Party, Talk } from "@/talk/types";
 import {
   BoxShadowStyle,
@@ -52,15 +42,31 @@ const Header = styled.h1`
   }
 `;
 
+const skeletonLoading = keyframes`
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+`;
+
+const SkeletonStyle = css`
+  background: linear-gradient(90deg, #eeeeee 25%, #f8f8f8 37%, #eeeeee 63%);
+  background-size: 400% 100%;
+  animation: ${skeletonLoading} 1.4s ease infinite;
+`;
+
 const CoverPicWrap = styled.div`
   position: relative;
   width: calc(100% - 40px);
-  aspect-ratio: ${coverPic.width / coverPic.height};
+  aspect-ratio: 3 / 4;
   margin: 0 auto;
   margin-bottom: 40px;
   border-radius: 30px;
   overflow: hidden;
   line-height: 0;
+  ${SkeletonStyle}
 `;
 
 const LiveButton = styled.button`
@@ -142,103 +148,23 @@ const PhotoGrid = styled.ul`
 
   li {
     height: 200px;
+    flex-basis: 120px;
     flex-grow: 1;
     margin: 4px;
   }
 
-  img {
-    max-height: 100%;
-    min-width: 100%;
-    object-fit: cover;
-    vertical-align: bottom;
+  div {
+    width: 100%;
+    height: 100%;
+    ${SkeletonStyle}
   }
 `;
 
-const SliderWrap = styled.div<{ isZoomed: boolean }>`
-  height: 100%;
-  ${({ isZoomed }) =>
-    isZoomed &&
-    css`
-      * {
-        overflow: visible !important;
-      }
-    `}
-  .slick-track {
-    display: flex;
-  }
-  .slick-track .slick-slide {
-    display: flex;
-
-    ${({ isZoomed }) =>
-      isZoomed &&
-      css`
-        &:not(.slick-active) {
-          visibility: hidden;
-        }
-      `}
-
-    height: auto;
-    align-items: center;
-    justify-content: center;
-    div {
-      outline: none;
-    }
-    img {
-      width: 100%;
-    }
-  }
+const MapSkeleton = styled.div`
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  ${SkeletonStyle}
 `;
-
-type PinchPhotoProps = { src: string; onZoom: (isZoomed: boolean) => void };
-const PinchPhoto = ({ src, onZoom }: PinchPhotoProps) => {
-  const imgRef = useRef<HTMLImageElement>(null);
-  const pz = useRef<QuickPinchZoom>(null);
-  const handleUpdate = useCallback(
-    ({ x, y, scale }: UpdateAction) => {
-      if (!imgRef.current) return;
-      const value = make3dTransformValue({ x, y, scale });
-      imgRef.current.style.setProperty("transform", value);
-      onZoom(scale > 1);
-    },
-    [onZoom]
-  );
-
-  return (
-    <QuickPinchZoom ref={pz} onUpdate={handleUpdate} draggableUnZoomed={false}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img ref={imgRef} src={src} alt="" />
-    </QuickPinchZoom>
-  );
-};
-
-type PhotoGalleryProps = {
-  photos: Content["photos"];
-  initialSlide?: number;
-  onClose: () => void;
-};
-const PhotoGallery = ({ photos, initialSlide, onClose }: PhotoGalleryProps) => {
-  const [isZoomed, setZoomed] = useState(false);
-  return (
-    <SliderWrap isZoomed={isZoomed} onClick={onClose}>
-      <Slider
-        initialSlide={initialSlide || 0}
-        slidesToShow={1}
-        slidesToScroll={1}
-        arrows={false}
-        dots={false}
-      >
-        {photos.map((p, i) => (
-          <div key={i}>
-            <PinchPhoto
-              src={typeof p === "string" ? p : p.url}
-              onZoom={setZoomed}
-            />
-          </div>
-        ))}
-      </Slider>
-    </SliderWrap>
-  );
-};
 
 const MapButton = styled.a`
   ${TextSansStyle}
@@ -496,12 +422,9 @@ const Home = ({ content: c }: HomeProps) => {
   const { data: talkListResp, mutate } =
     useSWR<GetTalkListResponse>("/api/talk/list");
 
-  const [showGalleryModal, setShowGalleryModal] = useState(false);
   const [showWriteTalkModal, setShowWriteTalkModal] = useState(false);
   const [showEditTalkModal, setShowEditTalkModal] = useState<Talk>();
   const [isWriteButtonShown, setWriteButtonShown] = useState(false);
-  const [lastClickedGalleryItem, setLastClickedGalleryItem] =
-    useState<number>();
   const [selectedTalkId, setSelectedTalkId] = useState<string>();
 
   const writeButtonTriggerRef = useRef<HTMLDivElement>(null);
@@ -517,13 +440,6 @@ const Home = ({ content: c }: HomeProps) => {
 
     return () => observer.disconnect();
   }, [writeButtonTriggerRef]);
-
-  const handlePhotoClick = (i: number) => {
-    setLastClickedGalleryItem(i);
-    setShowGalleryModal(true);
-  };
-
-  const handleGalleryModalClose = () => setShowGalleryModal(false);
 
   const handleTalkBubbleClick = (id: string | undefined) =>
     setSelectedTalkId(id);
@@ -556,9 +472,7 @@ const Home = ({ content: c }: HomeProps) => {
         <hr />
         {c.brideFullName}
       </Header>
-      <CoverPicWrap>
-        <Image src={coverPic} fill priority={true} placeholder="blur" alt="" />
-      </CoverPicWrap>
+      <CoverPicWrap aria-label="사진 준비중" />
       <p>
         {c.datetime}
         <br />
@@ -599,34 +513,15 @@ const Home = ({ content: c }: HomeProps) => {
       </CallWrap>
       <SectionHr />
       <PhotoGrid>
-        {c.photos.map((p, i) => (
+        {c.photos.map((_, i) => (
           <li key={i}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              role="button"
-              src={typeof p === "string" ? p : p.url}
-              onClick={() => handlePhotoClick(i)}
-              loading="lazy"
-              alt=""
-              style={
-                p.objectPosition ? { objectPosition: p.objectPosition } : {}
-              }
-            />
+            <div aria-label="사진 준비중" />
           </li>
         ))}
       </PhotoGrid>
-      {showGalleryModal && (
-        <Modal handleClose={handleGalleryModalClose}>
-          <PhotoGallery
-            photos={c.photos}
-            initialSlide={lastClickedGalleryItem}
-            onClose={handleGalleryModalClose}
-          />
-        </Modal>
-      )}
       <SectionHr />
       <SectionHeader>오시는 길</SectionHeader>
-      <Image src={mapPic} width={400} alt="" />
+      <MapSkeleton aria-label="지도 이미지 준비중" />
       <p>
         {c.venue.address}
         <br />
