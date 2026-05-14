@@ -21,6 +21,15 @@ export type ContentSpec = {
     naverMapUrl: string;
   };
   link?: { label: string; url: string };
+  rsvpFormUrl?: string;
+  calendarEvent: {
+    title: string;
+    start: string;
+    end: string;
+    timeZone: string;
+    location: string;
+    details: string;
+  };
   greeting: { title: string; content: string[] };
   groomContact: string;
   brideContact: string;
@@ -50,6 +59,16 @@ const myContentSpec: ContentSpec = {
       "https://map.naver.com/p/search/%EC%8B%9C%EC%9E%AC%20%EB%B0%94%EC%9D%B4%20%EB%A7%88%EB%A6%AC%EC%95%84%EC%A0%95%20%EA%B2%BD%EA%B8%B0%20%EC%9A%A9%EC%9D%B8%EC%8B%9C%20%EC%B2%98%EC%9D%B8%EA%B5%AC%20%EC%96%91%EC%A7%80%EC%9D%8D%20%EC%A3%BC%EB%B6%81%EB%A1%9C235%EB%B2%88%EA%B8%B8%2078%2C%2078-1",
   },
   link: { label: "📹 결혼식 생중계 보러가기", url: "/live" },
+  rsvpFormUrl: "",
+  calendarEvent: {
+    title: "임석의 ♡ 김민지 결혼식",
+    start: "20260627T130000",
+    end: "20260627T150000",
+    timeZone: "Asia/Seoul",
+    location:
+      "시재 바이 마리아정, 경기 용인시 처인구 양지읍 주북로235번길 78, 78-1",
+    details: "임석의 ♡ 김민지 결혼식",
+  },
   greeting: {
     title: "결혼합니다.",
     content: [

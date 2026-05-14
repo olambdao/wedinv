@@ -1,5 +1,4 @@
 import { Copy, EmojiLookLeft, EmojiLookRight, Pin } from "iconoir-react";
-import Link from "next/link";
 import React, {
   Fragment,
   MouseEventHandler,
@@ -15,6 +14,7 @@ import timeDiffFormat from "@/common/utils/timeDiffFormat";
 import Modal from "@/components/common/Modal";
 import { Content } from "@/content";
 import { GetTalkListResponse, Party, Talk } from "@/talk/types";
+import { InvitationVariant } from "@/variant";
 import {
   BoxShadowStyle,
   BubbleHeadStyle,
@@ -69,14 +69,23 @@ const CoverPicWrap = styled.div`
   ${SkeletonStyle}
 `;
 
-const LiveButton = styled.button`
+const ActionWrap = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 12px 10px;
+`;
+
+const LiveButton = styled.a`
+  display: inline-block;
   padding: 8px 16px;
   border: 0;
   border-radius: 8px;
-  margin: 12px 10px;
   color: white;
   font-size: 16px;
   font-weight: bold;
+  line-height: 1.5;
   background: rgba(255, 136, 170);
 
   animation: color-change 1s infinite;
@@ -92,6 +101,18 @@ const LiveButton = styled.button`
       background: rgba(255, 136, 170, 0.7);
     }
   }
+`;
+
+const ActionButton = styled.a`
+  ${TextSansStyle}
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: #666;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.5;
+  background: #f3f3f3;
 `;
 
 const GreetingP = styled.p`
@@ -415,9 +436,22 @@ const ThankYou = styled.div`
   color: #666;
 `;
 
-type HomeProps = { content: Content };
+const getGoogleCalendarUrl = (event: Content["calendarEvent"]) => {
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: event.title,
+    dates: `${event.start}/${event.end}`,
+    ctz: event.timeZone,
+    location: event.location,
+    details: event.details,
+  });
 
-const Home = ({ content: c }: HomeProps) => {
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+};
+
+type HomeProps = { content: Content; variant: InvitationVariant };
+
+const Home = ({ content: c, variant }: HomeProps) => {
   const [writeDone, setWriteDone] = useSessionStorage("talk.writedone");
   const { data: talkListResp, mutate } =
     useSWR<GetTalkListResponse>("/api/talk/list");
@@ -464,13 +498,19 @@ const Home = ({ content: c }: HomeProps) => {
     mutate();
   };
   const handleEditTalkModalClose = () => setShowEditTalkModal(undefined);
+  const [firstName, secondName] =
+    variant === "bride"
+      ? [c.brideFullName, c.groomFullName]
+      : [c.groomFullName, c.brideFullName];
+  const isInvitationVersion = variant !== "nomap";
+  const calendarUrl = getGoogleCalendarUrl(c.calendarEvent);
 
   return (
     <Main>
       <Header>
-        {c.groomFullName}
+        {firstName}
         <hr />
-        {c.brideFullName}
+        {secondName}
       </Header>
       <CoverPicWrap aria-label="사진 준비중" />
       <p>
@@ -478,11 +518,21 @@ const Home = ({ content: c }: HomeProps) => {
         <br />
         {c.venue.desc}
       </p>
-      {c.link && (
-        <Link href={c.link.url} passHref>
-          <LiveButton>{c.link.label}</LiveButton>
-        </Link>
-      )}
+      <ActionWrap>
+        {c.link && (
+          <LiveButton href={c.link.url}>{c.link.label}</LiveButton>
+        )}
+        {isInvitationVersion && c.rsvpFormUrl && (
+          <ActionButton href={c.rsvpFormUrl} target="_blank" rel="noreferrer">
+            RSVP
+          </ActionButton>
+        )}
+        {isInvitationVersion && (
+          <ActionButton href={calendarUrl} target="_blank" rel="noreferrer">
+            구글 캘린더
+          </ActionButton>
+        )}
+      </ActionWrap>
 
       <SectionHr />
 
@@ -519,20 +569,24 @@ const Home = ({ content: c }: HomeProps) => {
           </li>
         ))}
       </PhotoGrid>
-      <SectionHr />
-      <SectionHeader>오시는 길</SectionHeader>
-      <MapSkeleton aria-label="지도 이미지 준비중" />
-      <p>
-        {c.venue.address}
-        <br />
-        {c.venue.desc}
-      </p>
-      <MapButton href={c.venue.kakaoMapUrl}>
-        <Pin color="#1199EE" /> 카카오맵
-      </MapButton>
-      <MapButton href={c.venue.naverMapUrl}>
-        <Pin color="#66BB66" /> 네이버지도
-      </MapButton>
+      {isInvitationVersion && (
+        <>
+          <SectionHr />
+          <SectionHeader>오시는 길</SectionHeader>
+          <MapSkeleton aria-label="지도 이미지 준비중" />
+          <p>
+            {c.venue.address}
+            <br />
+            {c.venue.desc}
+          </p>
+          <MapButton href={c.venue.kakaoMapUrl}>
+            <Pin color="#1199EE" /> 카카오맵
+          </MapButton>
+          <MapButton href={c.venue.naverMapUrl}>
+            <Pin color="#66BB66" /> 네이버지도
+          </MapButton>
+        </>
+      )}
       <SectionHr />
       <SectionHeader>💸 마음 전하실 곳</SectionHeader>
       <GiveWrap>
