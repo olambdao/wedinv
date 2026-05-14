@@ -59,7 +59,7 @@ const myContentSpec: ContentSpec = {
       "https://map.naver.com/p/search/%EC%8B%9C%EC%9E%AC%20%EB%B0%94%EC%9D%B4%20%EB%A7%88%EB%A6%AC%EC%95%84%EC%A0%95%20%EA%B2%BD%EA%B8%B0%20%EC%9A%A9%EC%9D%B8%EC%8B%9C%20%EC%B2%98%EC%9D%B8%EA%B5%AC%20%EC%96%91%EC%A7%80%EC%9D%8D%20%EC%A3%BC%EB%B6%81%EB%A1%9C235%EB%B2%88%EA%B8%B8%2078%2C%2078-1",
   },
   link: { label: "📹 결혼식 생중계 보러가기", url: "/live" },
-  rsvpFormUrl: "",
+  rsvpFormUrl: "https://forms.gle/4H4b9yV9EnkQjx1a7",
   calendarEvent: {
     title: "임석의 ♡ 김민지 결혼식",
     start: "20260627T130000",
@@ -78,7 +78,7 @@ const myContentSpec: ContentSpec = {
         함께 자리하시어 축복해 주시면
         더없는 기쁨이겠습니다.`,
       `김대래 · 정혜욱의 삼녀 민지
-        임영희 · 최은희의 차남 석의`,
+        임영희 · 최은희의 장남 석의`,
     ],
   },
   groomContact: "tel:01071056849",
