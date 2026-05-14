@@ -29,7 +29,6 @@ type WriteTalkProps = { onWrite: (id: string) => void };
 
 const WriteTalk = ({ onWrite }: WriteTalkProps) => {
   const [isLoading, setLoading] = useState(false);
-  const [showValidation, setShowValidation] = useState(false);
 
   const [party, setParty] = useState<Party>();
   const [color, setColor] = useState(
@@ -63,10 +62,6 @@ const WriteTalk = ({ onWrite }: WriteTalkProps) => {
 
   const step2ErrMsg = authorErrMsg ?? msgErrMsg;
   const step3ErrMsg = passwordErrMsg;
-
-  useEffect(() => {
-    setShowValidation(false);
-  }, [author, msg, password]);
 
   const handleHeadClick: MouseEventHandler<SVGElement> = () => {
     const nextColor =

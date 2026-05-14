@@ -33,6 +33,4 @@ export type PatchTalkRequest = {
 };
 export type PatchTalkResponse = { error?: string };
 
-export type DeleteTalkRequest = {
-  /* TODO */
-};
+export type DeleteTalkRequest = Record<string, never>;

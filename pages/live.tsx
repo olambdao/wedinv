@@ -44,7 +44,7 @@ const getLiveUrl = async () => {
   return liveUrlCache.url;
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = async () => {
   const liveUrl = await getLiveUrl();
   if (liveUrl.startsWith("http")) {
     return {

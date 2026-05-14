@@ -1,4 +1,4 @@
-import { Copy, EmojiLookLeft, EmojiLookRight, PinAlt } from "iconoir-react";
+import { Copy, EmojiLookLeft, EmojiLookRight, Pin } from "iconoir-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, {
@@ -453,7 +453,7 @@ const TalkBubble = ({
     e.stopPropagation();
     onBubbleClick(talk.id);
   };
-  const handleBubbleOutsideClick: MouseEventHandler = (e) =>
+  const handleBubbleOutsideClick: MouseEventHandler = () =>
     onBubbleClick(undefined);
   const handleEditClick: MouseEventHandler = (e) => {
     e.stopPropagation();
@@ -493,11 +493,8 @@ type HomeProps = { content: Content };
 
 const Home = ({ content: c }: HomeProps) => {
   const [writeDone, setWriteDone] = useSessionStorage("talk.writedone");
-  const {
-    data: talkListResp,
-    error,
-    mutate,
-  } = useSWR<GetTalkListResponse>("/api/talk/list");
+  const { data: talkListResp, mutate } =
+    useSWR<GetTalkListResponse>("/api/talk/list");
 
   const [showGalleryModal, setShowGalleryModal] = useState(false);
   const [showWriteTalkModal, setShowWriteTalkModal] = useState(false);
@@ -532,7 +529,7 @@ const Home = ({ content: c }: HomeProps) => {
     setSelectedTalkId(id);
 
   const handleWriteButtonClick = () => setShowWriteTalkModal(true);
-  const handleWriteTalk = (_: string) => {
+  const handleWriteTalk = () => {
     setWriteDone("done");
     setShowWriteTalkModal(false);
     mutate();
@@ -545,7 +542,7 @@ const Home = ({ content: c }: HomeProps) => {
     setShowEditTalkModal(talk);
     setSelectedTalkId(undefined);
   };
-  const handleEditTalk = (_: string) => {
+  const handleEditTalk = () => {
     setWriteDone("done");
     setShowEditTalkModal(undefined);
     mutate();
@@ -636,10 +633,10 @@ const Home = ({ content: c }: HomeProps) => {
         {c.venue.desc}
       </p>
       <MapButton href={c.venue.kakaoMapUrl}>
-        <PinAlt color="#1199EE" /> 카카오맵
+        <Pin color="#1199EE" /> 카카오맵
       </MapButton>
       <MapButton href={c.venue.naverMapUrl}>
-        <PinAlt color="#66BB66" /> 네이버지도
+        <Pin color="#66BB66" /> 네이버지도
       </MapButton>
       <SectionHr />
       <SectionHeader>💸 마음 전하실 곳</SectionHeader>

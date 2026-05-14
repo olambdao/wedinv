@@ -29,8 +29,6 @@ import {
   Wrap,
 } from "./styles";
 
-type FormData = PatchTalkRequest;
-
 type Props = { talk: Talk; onEdit: (id: string) => void };
 
 const WriteTalk = ({ talk, onEdit }: Props) => {
@@ -66,7 +64,7 @@ const WriteTalk = ({ talk, onEdit }: Props) => {
 
   const errMsg = tempErrMsg ?? authorErrMsg ?? msgErrMsg;
 
-  const handleHeadClick: MouseEventHandler<SVGElement> = (e) => {
+  const handleHeadClick: MouseEventHandler<SVGElement> = () => {
     const nextColor =
       TalkHeadColors[
         (TalkHeadColors.indexOf(color) + 1) % TalkHeadColors.length
