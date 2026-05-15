@@ -57,50 +57,12 @@ const SkeletonStyle = css`
   animation: ${skeletonLoading} 1.4s ease infinite;
 `;
 
-const CoverPicWrap = styled.div`
-  position: relative;
-  width: calc(100% - 40px);
-  aspect-ratio: 3 / 4;
-  margin: 0 auto;
-  margin-bottom: 40px;
-  border-radius: 30px;
-  overflow: hidden;
-  line-height: 0;
-  ${SkeletonStyle}
-`;
-
 const ActionWrap = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 10px;
   margin: 12px 10px;
-`;
-
-const LiveButton = styled.a`
-  display: inline-block;
-  padding: 8px 16px;
-  border: 0;
-  border-radius: 8px;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  line-height: 1.5;
-  background: rgba(255, 136, 170);
-
-  animation: color-change 1s infinite;
-
-  @keyframes color-change {
-    0% {
-      background: rgba(255, 136, 170, 0.7);
-    }
-    50% {
-      background: rgb(255, 136, 170);
-    }
-    100% {
-      background: rgba(255, 136, 170, 0.7);
-    }
-  }
 `;
 
 const ActionButton = styled.a`
@@ -162,25 +124,6 @@ const CallButton = ({ icon, bgColor, label }: CallButtonProps) => (
   </>
 );
 
-const PhotoGrid = styled.ul`
-  display: flex;
-  flex-wrap: wrap;
-  padding: 0 10px;
-
-  li {
-    height: 200px;
-    flex-basis: 120px;
-    flex-grow: 1;
-    margin: 4px;
-  }
-
-  div {
-    width: 100%;
-    height: 100%;
-    ${SkeletonStyle}
-  }
-`;
-
 const MapSkeleton = styled.div`
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -208,9 +151,33 @@ const MapButton = styled.a`
   }
 `;
 
+const GuideWrap = styled.div`
+  display: inline-block;
+  width: calc(100% - 60px);
+  max-width: 340px;
+  margin-top: 40px;
+  text-align: left;
+  line-height: 2;
+
+  h3 {
+    margin-top: 24px;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  h3:first-child {
+    margin-top: 0;
+  }
+
+  p {
+    white-space: pre-line;
+    margin: 6px 0 0;
+  }
+`;
+
 const GiveWrap = styled.div`
   display: inline-block;
-  text-align: left;
+  text-align: center;
   line-height: 2;
 `;
 
@@ -218,6 +185,7 @@ const CopyTextButton = styled.button`
   padding: 0;
   border: none;
   background: none;
+  line-height: 0;
 
   svg {
     width: 20px;
@@ -227,7 +195,52 @@ const CopyTextButton = styled.button`
     vertical-align: sub;
   }
 `;
-const CopyText = ({ text }: { text: string }) => {
+
+const AccountRevealButton = styled.button`
+  ${TextSansStyle}
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 8px;
+  color: #666;
+  font-size: 13px;
+  font-weight: bold;
+  background: #f3f3f3;
+`;
+
+const AccountList = styled.ul`
+  ${TextSansStyle}
+  width: 280px;
+  margin: 8px auto 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f3f3f3;
+  line-height: 1.5;
+  text-align: left;
+
+  li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: center;
+    padding: 6px 0;
+    border-top: 1px solid #dddddd;
+  }
+
+  li:first-child {
+    border-top: 0;
+  }
+
+  span {
+    font-size: 12px;
+    color: #555;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+`;
+
+type AccountItem = { name: string; account: string };
+
+const AccountCopyButton = ({ text }: { text: string }) => {
   const handleCopyText = () => {
     const fallbackCopyClipboard = (value: string) => {
       const $text = document.createElement("textarea");
@@ -243,15 +256,57 @@ const CopyText = ({ text }: { text: string }) => {
       .catch(() => fallbackCopyClipboard(text))
       .then(() => alert("계좌번호가 복사 되었습니다."));
   };
+
   return (
-    <>
-      {text}
-      <CopyTextButton onClick={handleCopyText} aria-label="복사">
-        <Copy />
-      </CopyTextButton>
-    </>
+    <CopyTextButton type="button" onClick={handleCopyText} aria-label="복사">
+      <Copy />
+    </CopyTextButton>
   );
 };
+
+const AccountReveal = ({ accounts }: { accounts: AccountItem[] }) => {
+  const [isShown, setShown] = useState(false);
+
+  if (!isShown) {
+    return (
+      <AccountRevealButton type="button" onClick={() => setShown(true)}>
+        계좌번호 보기
+      </AccountRevealButton>
+    );
+  }
+
+  return (
+    <AccountList>
+      {accounts.map((account) => {
+        const copyText = `${account.name} ${account.account}`;
+
+        return (
+          <li key={copyText}>
+            <span>{copyText}</span>
+            <AccountCopyButton text={copyText} />
+          </li>
+        );
+      })}
+    </AccountList>
+  );
+};
+
+const guideSections = [
+  {
+    title: "주차안내",
+    content: "예식장 내 주차 안내에 따라 편하게 주차하실 수 있습니다.",
+  },
+  {
+    title: "전세버스안내",
+    content:
+      "예식 당일 전세 버스 운영 예정입니다. 참석 의사 전달 하실 때, 전세버스 탑승 여부를 기재해주세요. 추후 개별 연락 드릴 예정입니다.",
+  },
+  {
+    title: "대중교통 안내",
+    content: `에버라인 용인중앙시장역 하차 → 택시 탑승
+* 탑승 후 식권 내 QR코드로 요금 청구 부탁드립니다.`,
+  },
+];
 
 const WriteSectionSubHeader = styled.div`
   padding: 0 20px;
@@ -436,19 +491,6 @@ const ThankYou = styled.div`
   color: #666;
 `;
 
-const getGoogleCalendarUrl = (event: Content["calendarEvent"]) => {
-  const params = new URLSearchParams({
-    action: "TEMPLATE",
-    text: event.title,
-    dates: `${event.start}/${event.end}`,
-    ctz: event.timeZone,
-    location: event.location,
-    details: event.details,
-  });
-
-  return `https://calendar.google.com/calendar/render?${params.toString()}`;
-};
-
 type HomeProps = { content: Content; variant: InvitationVariant };
 
 const Home = ({ content: c, variant }: HomeProps) => {
@@ -498,38 +540,24 @@ const Home = ({ content: c, variant }: HomeProps) => {
     mutate();
   };
   const handleEditTalkModalClose = () => setShowEditTalkModal(undefined);
-  const [firstName, secondName] =
-    variant === "bride"
-      ? [c.brideFullName, c.groomFullName]
-      : [c.groomFullName, c.brideFullName];
   const isInvitationVersion = variant !== "nomap";
-  const calendarUrl = getGoogleCalendarUrl(c.calendarEvent);
 
   return (
     <Main>
       <Header>
-        {firstName}
+        {c.brideFullName}
         <hr />
-        {secondName}
+        {c.groomFullName}
       </Header>
-      <CoverPicWrap aria-label="사진 준비중" />
       <p>
         {c.datetime}
         <br />
         {c.venue.desc}
       </p>
       <ActionWrap>
-        {c.link && (
-          <LiveButton href={c.link.url}>{c.link.label}</LiveButton>
-        )}
         {isInvitationVersion && c.rsvpFormUrl && (
           <ActionButton href={c.rsvpFormUrl} target="_blank" rel="noreferrer">
-            RSVP
-          </ActionButton>
-        )}
-        {isInvitationVersion && (
-          <ActionButton href={calendarUrl} target="_blank" rel="noreferrer">
-            구글 캘린더
+            참석 의사 전달하기
           </ActionButton>
         )}
       </ActionWrap>
@@ -546,13 +574,6 @@ const Home = ({ content: c, variant }: HomeProps) => {
         </GreetingP>
       ))}
       <CallWrap>
-        <a href={c.groomContact}>
-          <CallButton
-            icon={<EmojiLookRight />}
-            bgColor="#abdaab"
-            label="신랑측에 연락하기"
-          />
-        </a>
         <a href={c.brideContact}>
           <CallButton
             icon={<EmojiLookLeft />}
@@ -560,15 +581,14 @@ const Home = ({ content: c, variant }: HomeProps) => {
             label="신부측에 연락하기"
           />
         </a>
+        <a href={c.groomContact}>
+          <CallButton
+            icon={<EmojiLookRight />}
+            bgColor="#abdaab"
+            label="신랑측에 연락하기"
+          />
+        </a>
       </CallWrap>
-      <SectionHr />
-      <PhotoGrid>
-        {c.photos.map((_, i) => (
-          <li key={i}>
-            <div aria-label="사진 준비중" />
-          </li>
-        ))}
-      </PhotoGrid>
       {isInvitationVersion && (
         <>
           <SectionHr />
@@ -585,6 +605,14 @@ const Home = ({ content: c, variant }: HomeProps) => {
           <MapButton href={c.venue.naverMapUrl}>
             <Pin color="#66BB66" /> 네이버지도
           </MapButton>
+          <GuideWrap>
+            {guideSections.map((section) => (
+              <Fragment key={section.title}>
+                <h3>{section.title}</h3>
+                <p>{section.content}</p>
+              </Fragment>
+            ))}
+          </GuideWrap>
         </>
       )}
       <SectionHr />
@@ -593,22 +621,12 @@ const Home = ({ content: c, variant }: HomeProps) => {
         <p>
           <strong>신랑측</strong>
           <br />
-          {c.groomGive.map((g) => (
-            <Fragment key={g.account}>
-              {g.name} <CopyText text={g.account} />
-              <br />
-            </Fragment>
-          ))}
+          <AccountReveal accounts={c.groomGive} />
         </p>
         <p>
           <strong>신부측</strong>
           <br />
-          {c.brideGive.map((g) => (
-            <Fragment key={g.account}>
-              {g.name} <CopyText text={g.account} />
-              <br />
-            </Fragment>
-          ))}
+          <AccountReveal accounts={c.brideGive} />
         </p>
       </GiveWrap>
       <SectionHr />
