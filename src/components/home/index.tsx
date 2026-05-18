@@ -1,4 +1,11 @@
-import { Copy, EmojiLookLeft, EmojiLookRight, Pin } from "iconoir-react";
+import {
+  Copy,
+  EmojiLookLeft,
+  EmojiLookRight,
+  MessageText,
+  Phone,
+  Pin,
+} from "iconoir-react";
 import React, {
   Fragment,
   MouseEventHandler,
@@ -29,8 +36,8 @@ import WriteTalk from "./talk/WriteTalk";
 const Hero = styled.section`
   position: relative;
   width: 100%;
-  height: 100vh;
-  height: 100svh;
+  height: 86vh;
+  height: 86svh;
   overflow: hidden;
   background: #F5F1EA;
 `;
@@ -49,7 +56,7 @@ const HeroInner = styled.div`
 const HeroTree = styled.img`
   width: 164%;
   max-width: 840px;
-  height: min(45svh, 420px);
+  height: min(38svh, 360px);
   object-fit: contain;
   object-position: top center;
   margin: 0 0 -52px;
@@ -111,7 +118,7 @@ const HeroActionButton = styled.a`
 
 const HeroSectionHr = styled.hr`
   width: 100px;
-  margin: 46px auto 0;
+  margin: 32px auto 0;
   border: 0;
   border-top: 1px solid #ccc;
 `;
@@ -170,20 +177,104 @@ const CallWrap = styled.div`
   }
 `;
 
+const ContactDetails = styled.details`
+  position: relative;
+  display: inline-block;
+  width: 118px;
+
+  &[open] {
+    margin-bottom: 190px;
+  }
+
+  summary {
+    display: block;
+    width: 118px;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+`;
+
 const CallButtonWrap = styled.div<{ bgColor: string }>`
   ${TextSansStyle}
-  font-size: 13px;
+  width: 118px;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: center;
+  white-space: nowrap;
 
   svg {
     display: block;
+    box-sizing: border-box;
     margin: 0 auto;
     margin-bottom: 4px;
     width: 60px;
     height: 60px;
+    min-width: 60px;
+    max-width: 60px;
+    min-height: 60px;
+    max-height: 60px;
     color: white;
     padding: 15px;
     border-radius: 30px;
     background-color: ${({ bgColor }) => bgColor};
+  }
+`;
+
+const ContactList = styled.div`
+  ${TextSansStyle}
+  width: calc(100% - 40px);
+  max-width: 360px;
+  position: absolute;
+  top: calc(100% + 14px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #f3f3f3;
+  text-align: left;
+`;
+
+const ContactRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 0;
+  border-top: 1px solid #dddddd;
+
+  &:first-child {
+    border-top: 0;
+  }
+`;
+
+const ContactText = styled.span`
+  color: #555;
+  font-size: 13px;
+  line-height: 1.5;
+`;
+
+const ContactActions = styled.div`
+  display: flex;
+  gap: 8px;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    background: #ffffff;
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+    color: #777;
   }
 `;
 
@@ -200,6 +291,36 @@ const CallButton = ({ icon, bgColor, label }: CallButtonProps) => (
       {label}
     </CallButtonWrap>
   </>
+);
+
+const brideContacts = [
+  { label: "신부", phone: "010-3934-5499" },
+  { label: "신부 아버님", phone: "010-3156-5286" },
+  { label: "신부 어머님", phone: "010-8436-5286" },
+];
+
+const ContactPanel = ({ contacts }: { contacts: typeof brideContacts }) => (
+  <ContactList>
+    {contacts.map((contact) => {
+      const phoneNumber = contact.phone.replaceAll("-", "");
+
+      return (
+        <ContactRow key={contact.phone}>
+          <ContactText>
+            {contact.label} {contact.phone}
+          </ContactText>
+          <ContactActions>
+            <a href={`tel:${phoneNumber}`} aria-label={`${contact.label} 전화`}>
+              <Phone />
+            </a>
+            <a href={`sms:${phoneNumber}`} aria-label={`${contact.label} 문자`}>
+              <MessageText />
+            </a>
+          </ContactActions>
+        </ContactRow>
+      );
+    })}
+  </ContactList>
 );
 
 const DirectionsImageWrap = styled.div`
@@ -272,10 +393,53 @@ const GuideWrap = styled.div`
   }
 `;
 
+const GuideActionWrap = styled.div`
+  text-align: center;
+`;
+
+const GuideActionButton = styled.a`
+  ${TextSansStyle}
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 8px;
+  margin-top: 12px;
+  color: #666;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.5;
+  background: #f3f3f3;
+`;
+
+const RsvpInfoText = styled.p`
+  white-space: pre-line;
+  margin: 0 24px 18px;
+  line-height: 2;
+`;
+
+const RsvpInfoButton = styled.a`
+  ${TextSansStyle}
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: #666;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.5;
+  background: #f3f3f3;
+`;
+
 const GiveWrap = styled.div`
   display: inline-block;
   text-align: center;
   line-height: 2;
+`;
+
+const GiveGroup = styled.div`
+  margin-bottom: 20px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 `;
 
 const CopyTextButton = styled.button`
@@ -401,7 +565,9 @@ const guideSections = [
   {
     title: "대중교통 안내",
     content: `용인공용버스터미널 근처 하차 → 택시 탑승
-* 탑승 후 아래 QR코드로 요금 청구 부탁드립니다.`,
+* 탑승 후 요금 청구 부탁드립니다.`,
+    actionLabel: "청구하기",
+    actionHref: "https://forms.gle/TmPzFpKV1kfuAgCi6",
   },
 ];
 
@@ -653,18 +819,21 @@ const Home = ({ content: c, variant }: HomeProps) => {
         </GreetingP>
       ))}
       <CallWrap>
-        <a href={c.brideContact}>
-          <CallButton
-            icon={<EmojiLookLeft />}
-            bgColor="#c2e0a3"
-            label="신부측에 연락하기"
-          />
-        </a>
+        <ContactDetails>
+          <summary>
+            <CallButton
+              icon={<EmojiLookLeft />}
+              bgColor="#c2e0a3"
+              label="신부 측에 연락하기"
+            />
+          </summary>
+          <ContactPanel contacts={brideContacts} />
+        </ContactDetails>
         <a href={c.groomContact}>
           <CallButton
             icon={<EmojiLookRight />}
             bgColor="#abdaab"
-            label="신랑측에 연락하기"
+            label="신랑 측에 연락하기"
           />
         </a>
       </CallWrap>
@@ -693,24 +862,47 @@ const Home = ({ content: c, variant }: HomeProps) => {
               <Fragment key={section.title}>
                 <h3>{section.title}</h3>
                 <p>{section.content}</p>
+                {"actionLabel" in section && section.actionLabel && (
+                  <GuideActionWrap>
+                    <GuideActionButton
+                      href={section.actionHref}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {section.actionLabel}
+                    </GuideActionButton>
+                  </GuideActionWrap>
+                )}
               </Fragment>
             ))}
           </GuideWrap>
         </>
       )}
       <SectionHr />
+      <SectionHeader>참석 여부 전달</SectionHeader>
+      <RsvpInfoText>
+        {`축하의 마음으로 참석해 주시는 한 분 한 분
+귀한 마음으로 모실 수 있도록
+부담 없이 알려주시면 정성을 다해 준비하겠습니다.`}
+      </RsvpInfoText>
+      {c.rsvpFormUrl && (
+        <RsvpInfoButton href={c.rsvpFormUrl} target="_blank" rel="noreferrer">
+          참석 의사 전달하기
+        </RsvpInfoButton>
+      )}
+      <SectionHr />
       <SectionHeader>💸 마음 전하실 곳</SectionHeader>
       <GiveWrap>
-        <p>
+        <GiveGroup>
           <strong>신랑측</strong>
           <br />
           <AccountReveal accounts={c.groomGive} />
-        </p>
-        <p>
+        </GiveGroup>
+        <GiveGroup>
           <strong>신부측</strong>
           <br />
           <AccountReveal accounts={c.brideGive} />
-        </p>
+        </GiveGroup>
       </GiveWrap>
       <SectionHr />
       <SectionHeader>축하의 한마디</SectionHeader>
