@@ -36,15 +36,12 @@ import WriteTalk from "./talk/WriteTalk";
 const Hero = styled.section`
   position: relative;
   width: 100%;
-  height: 86vh;
-  height: 86svh;
   overflow: hidden;
   background: #F5F1EA;
 `;
 
 const HeroInner = styled.div`
   position: relative;
-  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -113,6 +110,7 @@ const HeroActionButton = styled.a`
   font-size: 14px;
   font-weight: bold;
   line-height: 1.5;
+  text-decoration: none;
   background: #f3f3f3;
 `;
 
@@ -121,6 +119,11 @@ const HeroSectionHr = styled.hr`
   margin: 32px auto 0;
   border: 0;
   border-top: 1px solid #ccc;
+`;
+
+const FirstSectionHeader = styled(SectionHeader)`
+  margin-top: 28px;
+  margin-bottom: 24px;
 `;
 
 const InvitationHero = ({
@@ -171,31 +174,17 @@ const CallWrap = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: center;
-  margin: 40px 0;
+  margin: 40px 0 20px;
   > * {
     margin: 0 15px;
   }
 `;
 
-const ContactDetails = styled.details`
-  position: relative;
-  display: inline-block;
-  width: 118px;
-
-  &[open] {
-    margin-bottom: 190px;
-  }
-
-  summary {
-    display: block;
-    width: 118px;
-    cursor: pointer;
-    list-style: none;
-  }
-
-  summary::-webkit-details-marker {
-    display: none;
-  }
+const ContactTrigger = styled.button`
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: none;
 `;
 
 const CallButtonWrap = styled.div<{ bgColor: string }>`
@@ -227,12 +216,9 @@ const CallButtonWrap = styled.div<{ bgColor: string }>`
 const ContactList = styled.div`
   ${TextSansStyle}
   width: calc(100% - 40px);
-  max-width: 360px;
-  position: absolute;
-  top: calc(100% + 14px);
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 10px 14px;
+  max-width: 340px;
+  margin: 0 auto;
+  padding: 8px 10px;
   border-radius: 8px;
   background: #f3f3f3;
   text-align: left;
@@ -240,10 +226,10 @@ const ContactList = styled.div`
 
 const ContactRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 84px minmax(0, 1fr) auto;
   gap: 10px;
   align-items: center;
-  padding: 10px 0;
+  padding: 8px 0;
   border-top: 1px solid #dddddd;
 
   &:first-child {
@@ -255,11 +241,12 @@ const ContactText = styled.span`
   color: #555;
   font-size: 13px;
   line-height: 1.5;
+  white-space: nowrap;
 `;
 
 const ContactActions = styled.div`
   display: flex;
-  gap: 8px;
+  gap: 6px;
 
   a {
     display: inline-flex;
@@ -276,6 +263,43 @@ const ContactActions = styled.div`
     height: 18px;
     color: #777;
   }
+`;
+
+const ContactName = styled(ContactText)`
+  font-weight: 700;
+`;
+
+const ContactPhone = styled(ContactText)``;
+
+const ContactModalCard = styled.div`
+  width: calc(100% - 40px);
+  max-width: 360px;
+  margin: 0 auto;
+  padding: 22px 0 18px;
+  border-radius: 12px;
+  background: #F5F1EA;
+  text-align: center;
+`;
+
+const ContactModalTitle = styled.h3`
+  margin: 0 0 16px;
+  color: #333;
+  font-family: "Noto Serif KR", serif;
+  font-size: 18px;
+  font-weight: 500;
+`;
+
+const ContactModalClose = styled.button`
+  ${TextSansStyle}
+  display: inline-block;
+  padding: 7px 16px;
+  border: 0;
+  border-radius: 8px;
+  margin-top: 16px;
+  color: #666;
+  font-size: 13px;
+  font-weight: bold;
+  background: #f3f3f3;
 `;
 
 type CallButtonProps = {
@@ -299,16 +323,23 @@ const brideContacts = [
   { label: "신부 어머님", phone: "010-8436-5286" },
 ];
 
-const ContactPanel = ({ contacts }: { contacts: typeof brideContacts }) => (
+const groomContacts = [
+  { label: "신랑", phone: "010-4721-0265" },
+  { label: "신랑 아버님", phone: "010-3592-9109" },
+  { label: "신랑 어머님", phone: "010-3666-9109" },
+];
+
+type ContactItem = (typeof brideContacts)[number];
+
+const ContactPanel = ({ contacts }: { contacts: ContactItem[] }) => (
   <ContactList>
     {contacts.map((contact) => {
       const phoneNumber = contact.phone.replaceAll("-", "");
 
       return (
         <ContactRow key={contact.phone}>
-          <ContactText>
-            {contact.label} {contact.phone}
-          </ContactText>
+          <ContactName>{contact.label}</ContactName>
+          <ContactPhone>{contact.phone}</ContactPhone>
           <ContactActions>
             <a href={`tel:${phoneNumber}`} aria-label={`${contact.label} 전화`}>
               <Phone />
@@ -321,6 +352,24 @@ const ContactPanel = ({ contacts }: { contacts: typeof brideContacts }) => (
       );
     })}
   </ContactList>
+);
+
+const ContactModal = ({
+  contacts,
+  title,
+  onClose,
+}: {
+  contacts: ContactItem[];
+  title: string;
+  onClose: () => void;
+}) => (
+  <ContactModalCard>
+    <ContactModalTitle>{title}</ContactModalTitle>
+    <ContactPanel contacts={contacts} />
+    <ContactModalClose type="button" onClick={onClose}>
+      닫기
+    </ContactModalClose>
+  </ContactModalCard>
 );
 
 const DirectionsImageWrap = styled.div`
@@ -344,7 +393,7 @@ const WeddingPhoto = styled.img`
   width: calc(100% - 40px);
   max-width: 360px;
   height: auto;
-  margin: 0 auto 20px;
+  margin: 32px auto 20px;
   border-radius: 8px;
 `;
 
@@ -407,6 +456,7 @@ const GuideActionButton = styled.a`
   font-size: 14px;
   font-weight: bold;
   line-height: 1.5;
+  text-decoration: none;
   background: #f3f3f3;
 `;
 
@@ -471,7 +521,7 @@ const AccountRevealButton = styled.button`
 const AccountList = styled.ul`
   ${TextSansStyle}
   width: 280px;
-  margin: 8px auto 0;
+  margin: 0 auto;
   padding: 8px 10px;
   border-radius: 8px;
   background: #f3f3f3;
@@ -525,30 +575,63 @@ const AccountCopyButton = ({ text }: { text: string }) => {
   );
 };
 
-const AccountReveal = ({ accounts }: { accounts: AccountItem[] }) => {
-  const [isShown, setShown] = useState(false);
+const AccountPanel = ({ accounts }: { accounts: AccountItem[] }) => (
+  <AccountList>
+    {accounts.map((account) => {
+      const copyText = `${account.name} ${account.account}`;
 
-  if (!isShown) {
-    return (
-      <AccountRevealButton type="button" onClick={() => setShown(true)}>
-        계좌번호 보기
-      </AccountRevealButton>
-    );
-  }
+      return (
+        <li key={copyText}>
+          <span>{copyText}</span>
+          <AccountCopyButton text={copyText} />
+        </li>
+      );
+    })}
+  </AccountList>
+);
+
+const AccountModal = ({
+  accounts,
+  onClose,
+  title,
+}: {
+  accounts: AccountItem[];
+  onClose: () => void;
+  title: string;
+}) => (
+  <ContactModalCard>
+    <ContactModalTitle>{title}</ContactModalTitle>
+    <AccountPanel accounts={accounts} />
+    <ContactModalClose type="button" onClick={onClose}>
+      닫기
+    </ContactModalClose>
+  </ContactModalCard>
+);
+
+const AccountReveal = ({
+  accounts,
+  title,
+}: {
+  accounts: AccountItem[];
+  title: string;
+}) => {
+  const [isModalShown, setModalShown] = useState(false);
 
   return (
-    <AccountList>
-      {accounts.map((account) => {
-        const copyText = `${account.name} ${account.account}`;
-
-        return (
-          <li key={copyText}>
-            <span>{copyText}</span>
-            <AccountCopyButton text={copyText} />
-          </li>
-        );
-      })}
-    </AccountList>
+    <>
+      <AccountRevealButton type="button" onClick={() => setModalShown(true)}>
+        계좌번호 보기
+      </AccountRevealButton>
+      {isModalShown && (
+        <Modal handleClose={() => setModalShown(false)}>
+          <AccountModal
+            accounts={accounts}
+            title={title}
+            onClose={() => setModalShown(false)}
+          />
+        </Modal>
+      )}
+    </>
   );
 };
 
@@ -763,6 +846,8 @@ const Home = ({ content: c, variant }: HomeProps) => {
 
   const [showWriteTalkModal, setShowWriteTalkModal] = useState(false);
   const [showEditTalkModal, setShowEditTalkModal] = useState<Talk>();
+  const [showBrideContactModal, setShowBrideContactModal] = useState(false);
+  const [showGroomContactModal, setShowGroomContactModal] = useState(false);
   const [isWriteButtonShown, setWriteButtonShown] = useState(false);
   const [selectedTalkId, setSelectedTalkId] = useState<string>();
 
@@ -809,7 +894,7 @@ const Home = ({ content: c, variant }: HomeProps) => {
     <>
       <InvitationHero content={c} isInvitationVersion={isInvitationVersion} />
       <Main>
-      <SectionHeader>{c.greeting.title}</SectionHeader>
+      <FirstSectionHeader>{c.greeting.title}</FirstSectionHeader>
       {c.greeting.content.map((p, i) => (
         <GreetingP key={i}>
           {p
@@ -819,23 +904,26 @@ const Home = ({ content: c, variant }: HomeProps) => {
         </GreetingP>
       ))}
       <CallWrap>
-        <ContactDetails>
-          <summary>
-            <CallButton
-              icon={<EmojiLookLeft />}
-              bgColor="#c2e0a3"
-              label="신부 측에 연락하기"
-            />
-          </summary>
-          <ContactPanel contacts={brideContacts} />
-        </ContactDetails>
-        <a href={c.groomContact}>
+        <ContactTrigger
+          type="button"
+          onClick={() => setShowBrideContactModal(true)}
+        >
+          <CallButton
+            icon={<EmojiLookLeft />}
+            bgColor="#c2e0a3"
+            label="신부 측에 연락하기"
+          />
+        </ContactTrigger>
+        <ContactTrigger
+          type="button"
+          onClick={() => setShowGroomContactModal(true)}
+        >
           <CallButton
             icon={<EmojiLookRight />}
             bgColor="#abdaab"
             label="신랑 측에 연락하기"
           />
-        </a>
+        </ContactTrigger>
       </CallWrap>
       <WeddingPhoto src="/wed_photo.jpeg" alt="웨딩 사진" />
       {isInvitationVersion && (
@@ -896,12 +984,12 @@ const Home = ({ content: c, variant }: HomeProps) => {
         <GiveGroup>
           <strong>신랑측</strong>
           <br />
-          <AccountReveal accounts={c.groomGive} />
+          <AccountReveal accounts={c.groomGive} title="신랑측 계좌번호" />
         </GiveGroup>
         <GiveGroup>
           <strong>신부측</strong>
           <br />
-          <AccountReveal accounts={c.brideGive} />
+          <AccountReveal accounts={c.brideGive} title="신부측 계좌번호" />
         </GiveGroup>
       </GiveWrap>
       <SectionHr />
@@ -935,6 +1023,24 @@ const Home = ({ content: c, variant }: HomeProps) => {
       {showWriteTalkModal && (
         <Modal handleClose={handleWriteTalkModalClose}>
           <WriteTalk onWrite={handleWriteTalk} />
+        </Modal>
+      )}
+      {showBrideContactModal && (
+        <Modal handleClose={() => setShowBrideContactModal(false)}>
+          <ContactModal
+            contacts={brideContacts}
+            title="신부 측 연락처"
+            onClose={() => setShowBrideContactModal(false)}
+          />
+        </Modal>
+      )}
+      {showGroomContactModal && (
+        <Modal handleClose={() => setShowGroomContactModal(false)}>
+          <ContactModal
+            contacts={groomContacts}
+            title="신랑 측 연락처"
+            onClose={() => setShowGroomContactModal(false)}
+          />
         </Modal>
       )}
       {showEditTalkModal && (
