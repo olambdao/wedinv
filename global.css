@@ -1,6 +1,18 @@
 html {
   box-sizing: border-box;
+  min-height: 100%;
+  background: #F5F1EA;
 }
 *, *:before, *:after {
   box-sizing: inherit;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  background: #F5F1EA;
+}
+
+#__next {
+  min-height: 100%;
 }

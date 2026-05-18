@@ -78,7 +78,11 @@ const myContentSpec: ContentSpec = {
   groomContact: "tel:01071056849",
   brideContact: "tel:01073692869",
   galleryThumbPosition: {}, // e.g. { "p03.jpeg": "bottom" },
-  groomGive: [{ name: "임석의", account: "카카오뱅크 3333-07-0052253" }],
+  groomGive: [
+    { name: "임석의", account: "카카오뱅크 3333-28-6775167" },
+    { name: "임영희", account: "하나은행 534-910057-49207" },
+    { name: "최은희", account: "하나은행 407-910679-71307" },
+  ],
   brideGive: [
     { name: "김민지", account: "카카오뱅크 3333-01-9202-440" },
     { name: "김대래", account: "농협 924-1223-1741" },

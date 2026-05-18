@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import styled, { css, keyframes } from "styled-components";
+import styled, { css } from "styled-components";
 import useSWR from "swr";
 
 import { useSessionStorage } from "@/common/hooks/useStorage";
@@ -26,46 +26,78 @@ import {
 import EditTalk from "./talk/EditTalk";
 import WriteTalk from "./talk/WriteTalk";
 
-const Header = styled.h1`
-  display: inline-block;
-  margin: 40px 0;
-
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 2.5;
-
-  hr {
-    width: 70%;
-    margin: 0 auto;
-    border: 0;
-    border-top: 1px solid #ccc;
-  }
+const Hero = styled.section`
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: #F5F1EA;
 `;
 
-const skeletonLoading = keyframes`
-  0% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0 50%;
-  }
-`;
-
-const SkeletonStyle = css`
-  background: linear-gradient(90deg, #eeeeee 25%, #f8f8f8 37%, #eeeeee 63%);
-  background-size: 400% 100%;
-  animation: ${skeletonLoading} 1.4s ease infinite;
-`;
-
-const ActionWrap = styled.div`
+const HeroInner = styled.div`
+  position: relative;
+  height: 100%;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  margin: 12px 10px;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 24px 24px;
+  color: #5f6654;
+  text-align: center;
 `;
 
-const ActionButton = styled.a`
+const HeroTree = styled.img`
+  width: 164%;
+  max-width: 840px;
+  height: min(45svh, 420px);
+  object-fit: contain;
+  object-position: top center;
+  margin: 0 0 -52px;
+`;
+
+const HeroDivider = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 6px 0 14px;
+  color: #9aa28d;
+
+  span {
+    width: 56px;
+    height: 1px;
+    background: rgba(120, 128, 108, 0.35);
+  }
+
+  em {
+    font-size: 17px;
+    font-style: normal;
+  }
+`;
+
+const HeroKrNames = styled.p`
+  margin: 0 0 18px;
+  color: #5a5a50;
+  font-family: "Noto Serif KR", serif;
+  font-size: 20px;
+  letter-spacing: 0;
+`;
+
+const HeroEventDetail = styled.p`
+  margin: 0;
+  color: #5f6654;
+  font-family: "Noto Serif KR", serif;
+  font-size: 15px;
+  line-height: 1.9;
+  letter-spacing: 0;
+`;
+
+const HeroActionWrap = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 18px;
+`;
+
+const HeroActionButton = styled.a`
   ${TextSansStyle}
   display: inline-block;
   padding: 8px 16px;
@@ -76,6 +108,52 @@ const ActionButton = styled.a`
   line-height: 1.5;
   background: #f3f3f3;
 `;
+
+const HeroSectionHr = styled.hr`
+  width: 100px;
+  margin: 46px auto 0;
+  border: 0;
+  border-top: 1px solid #ccc;
+`;
+
+const InvitationHero = ({
+  content: c,
+  isInvitationVersion,
+}: {
+  content: Content;
+  isInvitationVersion: boolean;
+}) => (
+  <Hero>
+    <HeroInner>
+      <HeroTree src="/tree_transparent.png" alt="연리지 나무" />
+
+      <HeroDivider>
+        <span />
+        <em>❦</em>
+        <span />
+      </HeroDivider>
+
+      <HeroKrNames>김민지 · 임석의</HeroKrNames>
+      <HeroEventDetail>
+        {c.datetime}
+        <br />
+        {c.venue.desc}
+      </HeroEventDetail>
+      {isInvitationVersion && c.rsvpFormUrl && (
+        <HeroActionWrap>
+          <HeroActionButton
+            href={c.rsvpFormUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            참석 의사 전달하기
+          </HeroActionButton>
+        </HeroActionWrap>
+      )}
+      <HeroSectionHr />
+    </HeroInner>
+  </Hero>
+);
 
 const GreetingP = styled.p`
   white-space: pre;
@@ -124,10 +202,29 @@ const CallButton = ({ icon, bgColor, label }: CallButtonProps) => (
   </>
 );
 
-const MapSkeleton = styled.div`
+const DirectionsImageWrap = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: calc(100% - 40px);
+  max-width: 360px;
+  margin: 0 auto 24px;
+`;
+
+const DirectionsImage = styled.img`
+  display: block;
   width: 100%;
-  aspect-ratio: 1 / 1;
-  ${SkeletonStyle}
+  height: auto;
+  border-radius: 8px;
+`;
+
+const WeddingPhoto = styled.img`
+  display: block;
+  width: calc(100% - 40px);
+  max-width: 360px;
+  height: auto;
+  margin: 0 auto 20px;
+  border-radius: 8px;
 `;
 
 const MapButton = styled.a`
@@ -299,12 +396,12 @@ const guideSections = [
   {
     title: "전세버스안내",
     content:
-      "예식 당일 전세 버스 운영 예정입니다. 참석 의사 전달 하실 때, 전세버스 탑승 여부를 기재해주세요. 추후 개별 연락 드릴 예정입니다.",
+      "서울 출발 전세 버스 운영 예정입니다. 참석 의사 전달 하실 때, 전세버스 탑승 여부를 기재해주세요. 추후 개별 안내 드릴 예정입니다.",
   },
   {
     title: "대중교통 안내",
-    content: `에버라인 용인중앙시장역 하차 → 택시 탑승
-* 탑승 후 식권 내 QR코드로 요금 청구 부탁드립니다.`,
+    content: `용인공용버스터미널 근처 하차 → 택시 탑승
+* 탑승 후 아래 QR코드로 요금 청구 부탁드립니다.`,
   },
 ];
 
@@ -543,27 +640,9 @@ const Home = ({ content: c, variant }: HomeProps) => {
   const isInvitationVersion = variant !== "nomap";
 
   return (
-    <Main>
-      <Header>
-        {c.brideFullName}
-        <hr />
-        {c.groomFullName}
-      </Header>
-      <p>
-        {c.datetime}
-        <br />
-        {c.venue.desc}
-      </p>
-      <ActionWrap>
-        {isInvitationVersion && c.rsvpFormUrl && (
-          <ActionButton href={c.rsvpFormUrl} target="_blank" rel="noreferrer">
-            참석 의사 전달하기
-          </ActionButton>
-        )}
-      </ActionWrap>
-
-      <SectionHr />
-
+    <>
+      <InvitationHero content={c} isInvitationVersion={isInvitationVersion} />
+      <Main>
       <SectionHeader>{c.greeting.title}</SectionHeader>
       {c.greeting.content.map((p, i) => (
         <GreetingP key={i}>
@@ -589,11 +668,15 @@ const Home = ({ content: c, variant }: HomeProps) => {
           />
         </a>
       </CallWrap>
+      <WeddingPhoto src="/wed_photo.jpeg" alt="웨딩 사진" />
       {isInvitationVersion && (
         <>
           <SectionHr />
           <SectionHeader>오시는 길</SectionHeader>
-          <MapSkeleton aria-label="지도 이미지 준비중" />
+          <DirectionsImageWrap>
+            <DirectionsImage src="/directions1.jpeg" alt="오시는 길 안내 1" />
+            <DirectionsImage src="/directions2.jpeg" alt="오시는 길 안내 2" />
+          </DirectionsImageWrap>
           <p>
             {c.venue.address}
             <br />
@@ -667,7 +750,8 @@ const Home = ({ content: c, variant }: HomeProps) => {
           <EditTalk talk={showEditTalkModal} onEdit={handleEditTalk} />
         </Modal>
       )}
-    </Main>
+      </Main>
+    </>
   );
 };
 

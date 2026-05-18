@@ -69,6 +69,10 @@ export default class MyDocument extends Document {
               href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500&display=swap"
             />
           </noscript>
+          <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap"
+          />
 
           {/* Google Analytics */}
           {process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID && (
