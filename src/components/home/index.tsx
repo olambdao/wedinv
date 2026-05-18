@@ -63,7 +63,7 @@ const HeroDivider = styled.div`
   display: flex;
   align-items: center;
   gap: 14px;
-  margin: 6px 0 14px;
+  margin: 10px 0 18px;
   color: #9aa28d;
 
   span {
@@ -79,7 +79,7 @@ const HeroDivider = styled.div`
 `;
 
 const HeroKrNames = styled.p`
-  margin: 0 0 18px;
+  margin: 0 0 24px;
   color: #5a5a50;
   font-family: "Noto Serif KR", serif;
   font-size: 20px;
@@ -98,7 +98,7 @@ const HeroEventDetail = styled.p`
 const HeroActionWrap = styled.div`
   display: flex;
   justify-content: center;
-  margin-top: 18px;
+  margin-top: 24px;
 `;
 
 const HeroActionButton = styled.a`
@@ -116,7 +116,7 @@ const HeroActionButton = styled.a`
 
 const HeroSectionHr = styled.hr`
   width: 100px;
-  margin: 32px auto 0;
+  margin: 38px auto 0;
   border: 0;
   border-top: 1px solid #ccc;
 `;
@@ -393,7 +393,7 @@ const WeddingPhoto = styled.img`
   width: calc(100% - 40px);
   max-width: 360px;
   height: auto;
-  margin: 32px auto 20px;
+  margin: 52px auto 20px;
   border-radius: 8px;
 `;
 
@@ -423,7 +423,7 @@ const GuideWrap = styled.div`
   width: calc(100% - 60px);
   max-width: 340px;
   margin-top: 40px;
-  text-align: left;
+  text-align: center;
   line-height: 2;
 
   h3 {
@@ -641,9 +641,9 @@ const guideSections = [
     content: "예식장 내 주차 안내에 따라 편하게 주차하실 수 있습니다.",
   },
   {
-    title: "전세버스안내",
+    title: "전세버스 안내",
     content:
-      "서울 출발 전세 버스 운영 예정입니다. 참석 의사 전달 하실 때, 전세버스 탑승 여부를 기재해주세요. 추후 개별 안내 드릴 예정입니다.",
+      "서울 출발 전세 버스를 운영 할 예정입니다. 참석 의사 전달 시 전세버스 탑승 여부를 기재해주세요. 추후 개별 안내 드릴 예정입니다.",
   },
   {
     title: "대중교통 안내",
@@ -979,17 +979,17 @@ const Home = ({ content: c, variant }: HomeProps) => {
         </RsvpInfoButton>
       )}
       <SectionHr />
-      <SectionHeader>💸 마음 전하실 곳</SectionHeader>
+      <SectionHeader>마음 전하실 곳</SectionHeader>
       <GiveWrap>
-        <GiveGroup>
-          <strong>신랑측</strong>
-          <br />
-          <AccountReveal accounts={c.groomGive} title="신랑측 계좌번호" />
-        </GiveGroup>
         <GiveGroup>
           <strong>신부측</strong>
           <br />
           <AccountReveal accounts={c.brideGive} title="신부측 계좌번호" />
+        </GiveGroup>
+        <GiveGroup>
+          <strong>신랑측</strong>
+          <br />
+          <AccountReveal accounts={c.groomGive} title="신랑측 계좌번호" />
         </GiveGroup>
       </GiveWrap>
       <SectionHr />
