@@ -101,17 +101,42 @@ const HeroActionWrap = styled.div`
   margin-top: 24px;
 `;
 
-const HeroActionButton = styled.a`
+const ReferenceActionStyle = css`
   ${TextSansStyle}
-  display: inline-block;
-  padding: 8px 16px;
-  border-radius: 8px;
-  color: #666;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 300px;
+  max-width: calc(100vw - 64px);
+  min-height: 48px;
+  padding: 12px 16px;
+  border: 1px solid #c9cbd1;
+  border-radius: 9px;
+  color: #333;
   font-size: 15px;
-  font-weight: bold;
-  line-height: 1.5;
+  font-weight: 500;
+  line-height: 1.4;
   text-decoration: none;
-  background: #f3f3f3;
+  background: transparent;
+  transition: background 160ms ease, border-color 160ms ease,
+    color 160ms ease;
+
+  &&,
+  &&:link,
+  &&:visited,
+  &&:hover {
+    color: #333;
+    text-decoration: none;
+  }
+
+  &:hover {
+    border-color: #b6b8be;
+    background: rgba(255, 255, 255, 0.38);
+  }
+`;
+
+const HeroActionButton = styled.a`
+  ${ReferenceActionStyle}
 `;
 
 const HeroSectionHr = styled.hr`
@@ -199,7 +224,7 @@ const CallButtonWrap = styled.div<{ $bgColor: string }>`
     display: block;
     box-sizing: border-box;
     margin: 0 auto;
-    margin-bottom: 4px;
+    margin-bottom: 12px;
     width: 60px;
     height: 60px;
     min-width: 60px;
@@ -447,17 +472,8 @@ const GuideActionWrap = styled.div`
 `;
 
 const GuideActionButton = styled.a`
-  ${TextSansStyle}
-  display: inline-block;
-  padding: 8px 16px;
-  border-radius: 8px;
+  ${ReferenceActionStyle}
   margin-top: 12px;
-  color: #666;
-  font-size: 15px;
-  font-weight: bold;
-  line-height: 1.5;
-  text-decoration: none;
-  background: #f3f3f3;
 `;
 
 const RsvpInfoText = styled.p`
@@ -467,15 +483,7 @@ const RsvpInfoText = styled.p`
 `;
 
 const RsvpInfoButton = styled.a`
-  ${TextSansStyle}
-  display: inline-block;
-  padding: 8px 16px;
-  border-radius: 8px;
-  color: #666;
-  font-size: 15px;
-  font-weight: bold;
-  line-height: 1.5;
-  background: #f3f3f3;
+  ${ReferenceActionStyle}
 `;
 
 const GiveWrap = styled.div`
@@ -493,60 +501,51 @@ const GiveGroup = styled.div`
 `;
 
 const CopyTextButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border: none;
-  background: none;
-  line-height: 0;
+  border-radius: 16px;
+  background: #ffffff;
 
   svg {
-    width: 20px;
-    height: 20px;
-    padding: 2px;
+    width: 18px;
+    height: 18px;
     color: #999;
-    vertical-align: sub;
   }
 `;
 
 const AccountRevealButton = styled.button`
-  ${TextSansStyle}
-  padding: 4px 10px;
-  border: 0;
-  border-radius: 8px;
-  color: #666;
-  font-size: 15px;
-  font-weight: bold;
-  background: #f3f3f3;
+  ${ReferenceActionStyle}
 `;
 
-const AccountList = styled.ul`
-  ${TextSansStyle}
-  width: 280px;
-  margin: 0 auto;
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: #f3f3f3;
-  line-height: 1.5;
-  text-align: left;
+const AccountList = styled(ContactList)``;
 
-  li {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 8px;
-    align-items: center;
-    padding: 6px 0;
-    border-top: 1px solid #dddddd;
-  }
+const AccountRow = styled.div`
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid #dddddd;
 
-  li:first-child {
+  &:first-child {
     border-top: 0;
   }
+`;
 
-  span {
-    font-size: 14px;
-    color: #555;
-    word-break: keep-all;
-    overflow-wrap: anywhere;
-  }
+const AccountName = styled(ContactText)`
+  font-weight: 700;
+`;
+
+const AccountNumber = styled(ContactText)`
+  font-size: 14px;
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 `;
 
 type AccountItem = { name: string; account: string };
@@ -581,10 +580,11 @@ const AccountPanel = ({ accounts }: { accounts: AccountItem[] }) => (
       const copyText = `${account.name} ${account.account}`;
 
       return (
-        <li key={copyText}>
-          <span>{copyText}</span>
+        <AccountRow key={copyText}>
+          <AccountName>{account.name}</AccountName>
+          <AccountNumber>{account.account}</AccountNumber>
           <AccountCopyButton text={copyText} />
-        </li>
+        </AccountRow>
       );
     })}
   </AccountList>
@@ -643,7 +643,7 @@ const guideSections = [
   {
     title: "전세버스 안내",
     content:
-      "서울 출발 전세 버스를 운영 할 예정입니다. 참석 의사 전달 시 전세버스 탑승 여부를 기재해주세요. 추후 개별 안내 드릴 예정입니다.",
+      "서울 출발 전세 버스를 운영 할 예정입니다.\n참석 의사 전달 시 전세버스 탑승 여부를 기재해주세요.\n추후 개별 안내 드릴 예정입니다.",
   },
   {
     title: "대중교통 안내",
