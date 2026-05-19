@@ -635,6 +635,12 @@ const AccountReveal = ({
   );
 };
 
+type GuideSection = {
+  title: string;
+  content: string;
+  actionLabel?: string;
+  actionHref?: string;
+};
 const guideSections = [
   {
     title: "주차안내",
@@ -649,7 +655,7 @@ const guideSections = [
     title: "대중교통 안내",
     content: `용인공용버스터미널 근처 하차 → 택시 탑승`,
   },
-];
+] as GuideSection[];
 
 const WriteSectionSubHeader = styled.div`
   padding: 0 20px;
