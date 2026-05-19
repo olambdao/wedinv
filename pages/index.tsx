@@ -1,6 +1,5 @@
 import { GetStaticProps } from "next";
 import Head from "next/head";
-import fs from "fs";
 import { useRouter } from "next/router";
 
 import Home from "@/components/home";
@@ -34,15 +33,17 @@ const HomePage = ({ content: c }: HomePageProps) => {
 export default HomePage;
 
 export const getStaticProps: GetStaticProps = () => {
-  const photos: Content["photos"] = fs
-    .readdirSync("./public/photos/gallery")
-    .sort()
-    .map((fname) => ({
-      url: "/photos/gallery/" + fname,
-      ...(myContentSpec.galleryThumbPosition[fname]
-        ? { objectPosition: myContentSpec.galleryThumbPosition[fname] }
-        : {}),
-    }));
-  const content: Content = { ...myContentSpec, photos };
+  // TODO: add photos
+  // const photos: Content["photos"] = fs
+  //   .readdirSync("./public/photos/gallery")
+  //   .sort()
+  //   .map((fname) => ({
+  //     url: "/photos/gallery/" + fname,
+  //     ...(myContentSpec.galleryThumbPosition[fname]
+  //       ? { objectPosition: myContentSpec.galleryThumbPosition[fname] }
+  //       : {}),
+  //   }));
+
+  const content: Content = { ...myContentSpec };
   return { props: { content } };
 };
