@@ -647,10 +647,7 @@ const guideSections = [
   },
   {
     title: "대중교통 안내",
-    content: `용인공용버스터미널 근처 하차 → 택시 탑승
-* 탑승 후 요금 청구 부탁드립니다.`,
-    actionLabel: "청구하기",
-    actionHref: "https://forms.gle/TmPzFpKV1kfuAgCi6",
+    content: `용인공용버스터미널 근처 하차 → 택시 탑승`,
   },
 ];
 

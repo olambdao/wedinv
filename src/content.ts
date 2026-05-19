@@ -43,8 +43,7 @@ const myContentSpec: ContentSpec = {
   htmlDesc: "임석의 ♡ 김민지 2026년 6월 27일에 결혼합니다.",
   ogTitle: "임석의 ♡ 김민지 청첩장",
   ogDesc: "2026년 6월 27일에 결혼합니다.",
-  ogImageUrl:
-    "https://google.com", // TODO: replace with actual image
+  ogImageUrl: "https://drive.google.com/uc?id=1wbS2vOYamrdf3F3Oic1Xeqx_E6rgg9pb", 
 
   groomFullName: "임석의",
   brideFullName: "김민지",
