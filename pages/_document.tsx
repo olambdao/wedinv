@@ -74,25 +74,6 @@ export default class MyDocument extends Document {
             href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap"
           />
 
-          {/* Google Analytics */}
-          {process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID && (
-            <>
-              <script
-                async
-                src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}`}
-              />
-              <script
-                dangerouslySetInnerHTML={{
-                  __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}');
-            `,
-                }}
-              />
-            </>
-          )}
         </Head>
         <body>
           <Main />

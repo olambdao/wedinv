@@ -1,3 +1,4 @@
+import { GoogleAnalytics } from "@next/third-parties/google";
 import type { AppProps } from "next/app";
 import { useEffect } from "react";
 import { Reset } from "styled-reset";
@@ -10,6 +11,8 @@ const swrConfig = {
 };
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const gaId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
+
   useEffect(() => {
     if (!process.env.NEXT_PUBLIC_LOGROCKET_APPID) return;
     if (typeof window === "undefined") return;
@@ -32,6 +35,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <SWRConfig value={swrConfig}>
         <Component {...pageProps} />
       </SWRConfig>
+      {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
     </>
   );
 }
