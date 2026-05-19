@@ -7,7 +7,7 @@ const Header = styled.h1`
   display: inline-block;
   margin: 40px 0;
 
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 500;
   line-height: 2.5;
 

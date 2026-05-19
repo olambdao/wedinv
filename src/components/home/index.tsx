@@ -73,7 +73,7 @@ const HeroDivider = styled.div`
   }
 
   em {
-    font-size: 17px;
+    font-size: 18px;
     font-style: normal;
   }
 `;
@@ -82,7 +82,7 @@ const HeroKrNames = styled.p`
   margin: 0 0 24px;
   color: #5a5a50;
   font-family: "Noto Serif KR", serif;
-  font-size: 20px;
+  font-size: 22px;
   letter-spacing: 0;
 `;
 
@@ -90,7 +90,7 @@ const HeroEventDetail = styled.p`
   margin: 0;
   color: #5f6654;
   font-family: "Noto Serif KR", serif;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.9;
   letter-spacing: 0;
 `;
@@ -107,7 +107,7 @@ const HeroActionButton = styled.a`
   padding: 8px 16px;
   border-radius: 8px;
   color: #666;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: bold;
   line-height: 1.5;
   text-decoration: none;
@@ -187,10 +187,10 @@ const ContactTrigger = styled.button`
   background: none;
 `;
 
-const CallButtonWrap = styled.div<{ bgColor: string }>`
+const CallButtonWrap = styled.div<{ $bgColor: string }>`
   ${TextSansStyle}
   width: 118px;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.4;
   text-align: center;
   white-space: nowrap;
@@ -209,7 +209,7 @@ const CallButtonWrap = styled.div<{ bgColor: string }>`
     color: white;
     padding: 15px;
     border-radius: 30px;
-    background-color: ${({ bgColor }) => bgColor};
+    background-color: ${({ $bgColor }) => $bgColor};
   }
 `;
 
@@ -239,7 +239,7 @@ const ContactRow = styled.div`
 
 const ContactText = styled.span`
   color: #555;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.5;
   white-space: nowrap;
 `;
@@ -285,7 +285,7 @@ const ContactModalTitle = styled.h3`
   margin: 0 0 16px;
   color: #333;
   font-family: "Noto Serif KR", serif;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 500;
 `;
 
@@ -297,7 +297,7 @@ const ContactModalClose = styled.button`
   border-radius: 8px;
   margin-top: 16px;
   color: #666;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: bold;
   background: #f3f3f3;
 `;
@@ -310,7 +310,7 @@ type CallButtonProps = {
 
 const CallButton = ({ icon, bgColor, label }: CallButtonProps) => (
   <>
-    <CallButtonWrap bgColor={bgColor}>
+    <CallButtonWrap $bgColor={bgColor}>
       {icon}
       {label}
     </CallButtonWrap>
@@ -405,7 +405,7 @@ const MapButton = styled.a`
   border-radius: 18px;
   margin: 0 10px;
   color: #666;
-  font-size: 13px;
+  font-size: 15px;
   text-decoration: none;
   background: #f3f3f3;
   line-height: 1.3;
@@ -428,7 +428,7 @@ const GuideWrap = styled.div`
 
   h3 {
     margin-top: 24px;
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 500;
   }
 
@@ -453,7 +453,7 @@ const GuideActionButton = styled.a`
   border-radius: 8px;
   margin-top: 12px;
   color: #666;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: bold;
   line-height: 1.5;
   text-decoration: none;
@@ -472,7 +472,7 @@ const RsvpInfoButton = styled.a`
   padding: 8px 16px;
   border-radius: 8px;
   color: #666;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: bold;
   line-height: 1.5;
   background: #f3f3f3;
@@ -513,7 +513,7 @@ const AccountRevealButton = styled.button`
   border: 0;
   border-radius: 8px;
   color: #666;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: bold;
   background: #f3f3f3;
 `;
@@ -542,7 +542,7 @@ const AccountList = styled.ul`
   }
 
   span {
-    font-size: 12px;
+    font-size: 14px;
     color: #555;
     word-break: keep-all;
     overflow-wrap: anywhere;
@@ -666,10 +666,10 @@ const WriteSectionSubHeader = styled.div`
   }
 `;
 
-const WriteButton = styled.button<{ visible: boolean }>`
+const WriteButton = styled.button<{ $visible: boolean }>`
   ${TextSansStyle}
-  ${({ visible }) =>
-    visible
+  ${({ $visible }) =>
+    $visible
       ? css`
           bottom: 45px;
         `
@@ -774,11 +774,11 @@ const TalkBubbleWrap = styled.div<{
         align-self: flex-end;
         flex-shrink: 0;
         color: #999;
-        font-size: 11px;
+        font-size: 13px;
       }
     }
     .edit {
-      font-size: 0.9em;
+      font-size: 0.95em;
       color: #999;
       text-decoration: underline;
     }
@@ -1014,7 +1014,7 @@ const Home = ({ content: c, variant }: HomeProps) => {
       <ThankYou>{writeDone ? "감사합니다." : ""}</ThankYou>
       {!writeDone && (
         <WriteButton
-          visible={isWriteButtonShown}
+          $visible={isWriteButtonShown}
           onClick={handleWriteButtonClick}
         >
           😍 나도 한마디
