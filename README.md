@@ -11,6 +11,16 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Invitation Settings
+
+Set `INVITATION_PRIMARY_SIDE` in Vercel to control the display order.
+
+- `bride` or unset: 김민지 / 신부측 first
+- `groom`: 임석의 / 신랑측 first
+
+During local development, `?side=bride` or `?side=groom` overrides the
+environment setting for quick checks.
+
 You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
 
 [API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.

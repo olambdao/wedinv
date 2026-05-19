@@ -1,6 +1,8 @@
 import styled, { css } from "styled-components";
 import { Party } from "@/talk/types";
 
+export type BubbleAlignment = "left" | "right";
+
 export const TextSerifStyle = css`
   font-family: "Noto Serif KR", serif;
 `;
@@ -62,8 +64,12 @@ export const SectionHeader = styled.h2`
   font-weight: 500;
 `;
 
-export const BubbleHeadStyle = (party: Party, color: string) => css`
-  ${party === "BRIDE"
+export const BubbleHeadStyle = (
+  party: Party,
+  color: string,
+  alignment: BubbleAlignment = party === "BRIDE" ? "right" : "left"
+) => css`
+  ${alignment === "right"
     ? css`
         float: right;
       `

@@ -21,8 +21,13 @@ import timeDiffFormat from "@/common/utils/timeDiffFormat";
 import Modal from "@/components/common/Modal";
 import { Content } from "@/content";
 import { GetTalkListResponse, Party, Talk } from "@/talk/types";
-import { InvitationVariant } from "@/variant";
 import {
+  getOrderedInvitationSides,
+  InvitationSide,
+  InvitationVariant,
+} from "@/variant";
+import {
+  BubbleAlignment,
   BoxShadowStyle,
   BubbleHeadStyle,
   Main,
@@ -151,44 +156,70 @@ const FirstSectionHeader = styled(SectionHeader)`
   margin-bottom: 24px;
 `;
 
+const getSideFullName = (content: Content, side: InvitationSide) =>
+  side === "groom" ? content.groomFullName : content.brideFullName;
+
+const getSideFamilyLine = (content: Content, side: InvitationSide) =>
+  side === "groom" ? content.greeting.groomFamily : content.greeting.brideFamily;
+
+const getPartyInvitationSide = (party: Party): InvitationSide =>
+  party === "GROOM" ? "groom" : "bride";
+
+const getPartyAlignment = (
+  party: Party,
+  primarySide: InvitationSide
+): BubbleAlignment =>
+  getPartyInvitationSide(party) === primarySide ? "left" : "right";
+
+const getAlignmentIcon = (alignment: BubbleAlignment) =>
+  alignment === "right" ? <EmojiLookLeft /> : <EmojiLookRight />;
+
 const InvitationHero = ({
   content: c,
   isInvitationVersion,
+  primarySide,
 }: {
   content: Content;
   isInvitationVersion: boolean;
-}) => (
-  <Hero>
-    <HeroInner>
-      <HeroTree src="/tree_transparent.png" alt="연리지 나무" />
+  primarySide: InvitationSide;
+}) => {
+  const orderedNames = getOrderedInvitationSides(primarySide)
+    .map((side) => getSideFullName(c, side))
+    .join(" · ");
 
-      <HeroDivider>
-        <span />
-        <em>❦</em>
-        <span />
-      </HeroDivider>
+  return (
+    <Hero>
+      <HeroInner>
+        <HeroTree src="/tree_transparent.png" alt="연리지 나무" />
 
-      <HeroKrNames>김민지 · 임석의</HeroKrNames>
-      <HeroEventDetail>
-        {c.datetime}
-        <br />
-        {c.venue.desc}
-      </HeroEventDetail>
-      {isInvitationVersion && c.rsvpFormUrl && (
-        <HeroActionWrap>
-          <HeroActionButton
-            href={c.rsvpFormUrl}
-            target="_blank"
-            rel="noreferrer"
-          >
-            참석 의사 전달하기
-          </HeroActionButton>
-        </HeroActionWrap>
-      )}
-      <HeroSectionHr />
-    </HeroInner>
-  </Hero>
-);
+        <HeroDivider>
+          <span />
+          <em>❦</em>
+          <span />
+        </HeroDivider>
+
+        <HeroKrNames>{orderedNames}</HeroKrNames>
+        <HeroEventDetail>
+          {c.datetime}
+          <br />
+          {c.venue.desc}
+        </HeroEventDetail>
+        {isInvitationVersion && c.rsvpFormUrl && (
+          <HeroActionWrap>
+            <HeroActionButton
+              href={c.rsvpFormUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              참석 의사 전달하기
+            </HeroActionButton>
+          </HeroActionWrap>
+        )}
+        <HeroSectionHr />
+      </HeroInner>
+    </Hero>
+  );
+};
 
 const GreetingP = styled.p`
   white-space: pre;
@@ -713,9 +744,10 @@ const WriteButtonTrigger = styled.div`
 `;
 
 const TalkBubbleWrap = styled.div<{
-  party: Party;
-  color: string;
-  selected: boolean;
+  $party: Party;
+  $color: string;
+  $selected: boolean;
+  $primarySide: InvitationSide;
 }>`
   ${TextSansStyle}
   margin-bottom: 10px;
@@ -723,11 +755,12 @@ const TalkBubbleWrap = styled.div<{
     margin-bottom: 0;
   }
   svg {
-    ${({ party, color }) => BubbleHeadStyle(party, color)}
+    ${({ $party, $color, $primarySide }) =>
+      BubbleHeadStyle($party, $color, getPartyAlignment($party, $primarySide))}
   }
   > div {
-    ${({ party }) =>
-      party === "BRIDE"
+    ${({ $party, $primarySide }) =>
+      getPartyAlignment($party, $primarySide) === "right"
         ? css`
             margin-right: 44px;
             text-align: right;
@@ -739,8 +772,8 @@ const TalkBubbleWrap = styled.div<{
     line-height: 1.3;
     div.bubble-info-wrap {
       display: flex;
-      ${({ party }) =>
-        party === "BRIDE"
+      ${({ $party, $primarySide }) =>
+        getPartyAlignment($party, $primarySide) === "right"
           ? css`
               flex-direction: row-reverse;
             `
@@ -756,8 +789,8 @@ const TalkBubbleWrap = styled.div<{
         display: inline-block;
         padding: 8px 12px;
         margin: 4px 0 0 0;
-        ${({ party }) =>
-          party === "BRIDE"
+        ${({ $party, $primarySide }) =>
+          getPartyAlignment($party, $primarySide) === "right"
             ? css`
                 border-radius: 20px 4px 20px 20px;
                 margin-left: 3px;
@@ -767,8 +800,8 @@ const TalkBubbleWrap = styled.div<{
                 margin-right: 3px;
               `}
         background: #eee;
-        ${({ selected }) =>
-          selected &&
+        ${({ $selected }) =>
+          $selected &&
           css`
             background: #ddd;
           `}
@@ -791,12 +824,14 @@ const TalkBubbleWrap = styled.div<{
 type TalkBubbleProps = {
   talk: Talk;
   selected: boolean;
+  primarySide: InvitationSide;
   onBubbleClick: (id: string | undefined) => void;
   onEditClick: (id: string) => void;
 };
 const TalkBubble = ({
   talk,
   selected,
+  primarySide,
   onBubbleClick,
   onEditClick,
 }: TalkBubbleProps) => {
@@ -815,13 +850,20 @@ const TalkBubble = ({
       수정하기
     </span>
   );
+  const alignment = getPartyAlignment(talk.party, primarySide);
+
   return (
-    <TalkBubbleWrap party={talk.party} color={talk.color} selected={selected}>
-      {talk.party === "BRIDE" ? <EmojiLookLeft /> : <EmojiLookRight />}
+    <TalkBubbleWrap
+      $party={talk.party}
+      $color={talk.color}
+      $selected={selected}
+      $primarySide={primarySide}
+    >
+      {getAlignmentIcon(alignment)}
       <div onClick={handleBubbleOutsideClick}>
-        {selected && talk.party === "BRIDE" && <>{editBtn} </>}
+        {selected && alignment === "right" && <>{editBtn} </>}
         {talk.author}
-        {selected && talk.party === "GROOM" && <> {editBtn}</>}
+        {selected && alignment === "left" && <> {editBtn}</>}
         <div className="bubble-info-wrap">
           <p onClick={handleBubbleClick}>{talk.msg}</p>
           <small>
@@ -840,9 +882,13 @@ const ThankYou = styled.div`
   color: #666;
 `;
 
-type HomeProps = { content: Content; variant: InvitationVariant };
+type HomeProps = {
+  content: Content;
+  variant: InvitationVariant;
+  primarySide: InvitationSide;
+};
 
-const Home = ({ content: c, variant }: HomeProps) => {
+const Home = ({ content: c, variant, primarySide }: HomeProps) => {
   const [writeDone, setWriteDone] = useSessionStorage("talk.writedone");
   const { data: talkListResp, mutate } =
     useSWR<GetTalkListResponse>("/api/talk/list");
@@ -892,13 +938,46 @@ const Home = ({ content: c, variant }: HomeProps) => {
   };
   const handleEditTalkModalClose = () => setShowEditTalkModal(undefined);
   const isInvitationVersion = variant !== "nomap";
+  const orderedSides = getOrderedInvitationSides(primarySide);
+  const greetingParagraphs = [
+    ...c.greeting.content,
+    orderedSides.map((side) => getSideFamilyLine(c, side)).join("\n"),
+  ];
+  const sideContent = {
+    bride: {
+      accountTitle: "신부측 계좌번호",
+      accounts: c.brideGive,
+      bgColor: "#c2e0a3",
+      contactButtonLabel: "신부 측에 연락하기",
+      contactModalTitle: "신부 측 연락처",
+      contacts: brideContacts,
+      icon: <EmojiLookLeft />,
+      label: "신부측",
+      onContactClick: () => setShowBrideContactModal(true),
+    },
+    groom: {
+      accountTitle: "신랑측 계좌번호",
+      accounts: c.groomGive,
+      bgColor: "#abdaab",
+      contactButtonLabel: "신랑 측에 연락하기",
+      contactModalTitle: "신랑 측 연락처",
+      contacts: groomContacts,
+      icon: <EmojiLookRight />,
+      label: "신랑측",
+      onContactClick: () => setShowGroomContactModal(true),
+    },
+  };
 
   return (
     <>
-      <InvitationHero content={c} isInvitationVersion={isInvitationVersion} />
+      <InvitationHero
+        content={c}
+        isInvitationVersion={isInvitationVersion}
+        primarySide={primarySide}
+      />
       <Main>
       <FirstSectionHeader>{c.greeting.title}</FirstSectionHeader>
-      {c.greeting.content.map((p, i) => (
+      {greetingParagraphs.map((p, i) => (
         <GreetingP key={i}>
           {p
             .split("\n")
@@ -907,26 +986,23 @@ const Home = ({ content: c, variant }: HomeProps) => {
         </GreetingP>
       ))}
       <CallWrap>
-        <ContactTrigger
-          type="button"
-          onClick={() => setShowBrideContactModal(true)}
-        >
-          <CallButton
-            icon={<EmojiLookLeft />}
-            bgColor="#c2e0a3"
-            label="신부 측에 연락하기"
-          />
-        </ContactTrigger>
-        <ContactTrigger
-          type="button"
-          onClick={() => setShowGroomContactModal(true)}
-        >
-          <CallButton
-            icon={<EmojiLookRight />}
-            bgColor="#abdaab"
-            label="신랑 측에 연락하기"
-          />
-        </ContactTrigger>
+        {orderedSides.map((side) => {
+          const item = sideContent[side];
+
+          return (
+            <ContactTrigger
+              key={side}
+              type="button"
+              onClick={item.onContactClick}
+            >
+              <CallButton
+                icon={item.icon}
+                bgColor={item.bgColor}
+                label={item.contactButtonLabel}
+              />
+            </ContactTrigger>
+          );
+        })}
       </CallWrap>
       <WeddingPhoto src="/wed_photo.jpeg" alt="웨딩 사진" />
       {isInvitationVersion && (
@@ -984,22 +1060,24 @@ const Home = ({ content: c, variant }: HomeProps) => {
       <SectionHr />
       <SectionHeader>마음 전하실 곳</SectionHeader>
       <GiveWrap>
-        <GiveGroup>
-          <strong>신부측</strong>
-          <br />
-          <AccountReveal accounts={c.brideGive} title="신부측 계좌번호" />
-        </GiveGroup>
-        <GiveGroup>
-          <strong>신랑측</strong>
-          <br />
-          <AccountReveal accounts={c.groomGive} title="신랑측 계좌번호" />
-        </GiveGroup>
+        {orderedSides.map((side) => {
+          const item = sideContent[side];
+
+          return (
+            <GiveGroup key={side}>
+              <strong>{item.label}</strong>
+              <br />
+              <AccountReveal accounts={item.accounts} title={item.accountTitle} />
+            </GiveGroup>
+          );
+        })}
       </GiveWrap>
       <SectionHr />
       <SectionHeader>축하의 한마디</SectionHeader>
       <WriteSectionSubHeader>
-        <p>신랑측</p>
-        <p>신부측</p>
+        {orderedSides.map((side) => (
+          <p key={side}>{sideContent[side].label}</p>
+        ))}
       </WriteSectionSubHeader>
       <div style={{ clear: "both" }} />
       <TalkWrap>
@@ -1009,6 +1087,7 @@ const Home = ({ content: c, variant }: HomeProps) => {
             key={talk.id}
             talk={talk}
             selected={talk.id === selectedTalkId}
+            primarySide={primarySide}
             onBubbleClick={handleTalkBubbleClick}
             onEditClick={handleTalkEditClick}
           />
@@ -1031,8 +1110,8 @@ const Home = ({ content: c, variant }: HomeProps) => {
       {showBrideContactModal && (
         <Modal handleClose={() => setShowBrideContactModal(false)}>
           <ContactModal
-            contacts={brideContacts}
-            title="신부 측 연락처"
+            contacts={sideContent.bride.contacts}
+            title={sideContent.bride.contactModalTitle}
             onClose={() => setShowBrideContactModal(false)}
           />
         </Modal>
@@ -1040,8 +1119,8 @@ const Home = ({ content: c, variant }: HomeProps) => {
       {showGroomContactModal && (
         <Modal handleClose={() => setShowGroomContactModal(false)}>
           <ContactModal
-            contacts={groomContacts}
-            title="신랑 측 연락처"
+            contacts={sideContent.groom.contacts}
+            title={sideContent.groom.contactModalTitle}
             onClose={() => setShowGroomContactModal(false)}
           />
         </Modal>
