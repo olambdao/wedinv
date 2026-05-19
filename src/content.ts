@@ -82,8 +82,8 @@ const myContentSpec: ContentSpec = {
         이제는 한 마음으로
         같은 생을 그려가려 합니다.`,
     ],
-    groomFamily: "임영희 · 최은희의 장남 석의",
-    brideFamily: "김대래 · 정혜욱의 삼녀 민지",
+    groomFamily: "임영희 · 최은희의 아들 석의",
+    brideFamily: "김대래 · 정혜욱의 딸 민지",
   },
   groomContact: "tel:01071056849",
   brideContact: "tel:01073692869",
