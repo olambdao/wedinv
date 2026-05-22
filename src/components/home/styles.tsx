@@ -43,7 +43,6 @@ export const Main = styled.main`
 
   font-size: 16px;
   color: ${T.ink};
-  text-align: center;
   line-height: 1.85;
   background: ${T.bg};
 
@@ -59,14 +58,6 @@ export const Main = styled.main`
     &:hover {
       cursor: pointer;
     }
-  }
-
-  h2 {
-    margin-bottom: 30px;
-  }
-
-  p {
-    margin-bottom: 20px;
   }
 
   strong {

@@ -41,6 +41,7 @@ import {
   SectionHr,
   T,
   TextSansStyle,
+  TextSerifStyle,
 } from "./styles";
 import SingleMap from "./SingleMap";
 import EditTalk from "./talk/EditTalk";
@@ -636,7 +637,7 @@ const ShuttleMoreButton = styled.button`
 `;
 
 const ShuttleSummary = styled.div`
-  padding: 10px 12px;
+  padding: 4px 12px;
   border: 1px solid ${T.rule};
   border-radius: 6px;
   background: ${T.paper};
@@ -753,14 +754,6 @@ const ShuttleModalFooter = styled.div`
   padding: 0 24px 24px;
 `;
 
-const RsvpInfoText = styled.p`
-  white-space: pre-line;
-  margin: 0 24px 18px;
-  color: ${T.inkSoft};
-  font-size: 14px;
-  line-height: 1.8;
-`;
-
 const RsvpWrap = styled.section`
   padding-top: 72px;
 `;
@@ -785,7 +778,6 @@ const GiveWrap = styled.div`
   flex-direction: column;
   gap: 10px;
   padding: 0 24px;
-  text-align: center;
 `;
 
 const GiveGroup = styled.div`
@@ -813,7 +805,7 @@ const CopyTextButton = styled.button`
 `;
 
 const AccountRevealButton = styled.button`
-  ${TextSansStyle}
+  ${TextSerifStyle}
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1535,13 +1527,9 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
         <SectionHeader
           kicker="04 · RSVP"
           title="참석 여부 전달"
-          sub={`귀한 마음으로 모실 수 있도록\n부담 없이 알려주시면 정성껏 준비하겠습니다.`}
+          sub={`귀한 마음으로 모실 수 있도록 부담 없이 알려주시면 정성껏 준비하겠습니다.`}
         />
         <RsvpContent>
-          <RsvpInfoText>
-            축하의 마음으로 참석해 주시는 한 분 한 분 정성을 다해
-            준비하겠습니다.
-          </RsvpInfoText>
           {c.rsvpFormUrl && (
             <Btn
               as="a"
@@ -1562,7 +1550,6 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
       <SectionHeader
         kicker="05 · Gratitude"
         title="마음 전하실 곳"
-        sub="참석이 어려우신 분들을 위해 마련했습니다."
       />
       <GiveWrap>
         {orderedSides.map((side) => {
@@ -1579,7 +1566,6 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
       <SectionHeader
         kicker="06 · Guestbook"
         title="축하의 한마디"
-        sub="짧은 문장도 큰 힘이 됩니다."
       />
       <WriteSectionSubHeader>
         {orderedSides.map((side) => (
