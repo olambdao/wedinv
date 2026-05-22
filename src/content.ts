@@ -47,12 +47,12 @@ export type ContentSpec = {
 };
 
 const myContentSpec: ContentSpec = {
-  groomHtmlTitle: "임석의 ♡ 김민지",
-  brideHtmlTitle: "김민지 ♡ 임석의",
-  groomHtmlDesc: "임석의 ♡ 김민지 2026년 6월 27일에 결혼합니다.",
-  brideHtmlDesc: "김민지 ♡ 임석의 2026년 6월 27일에 결혼합니다.",
-  groomOgTitle: "임석의 ♡ 김민지 청첩장",
-  brideOgTitle: "김민지 ♡ 임석의 청첩장",
+  groomHtmlTitle: "임석의 · 김민지",
+  brideHtmlTitle: "김민지 · 임석의",
+  groomHtmlDesc: "임석의 · 김민지 2026년 6월 27일에 결혼합니다.",
+  brideHtmlDesc: "김민지 · 임석의 2026년 6월 27일에 결혼합니다.",
+  groomOgTitle: "임석의 · 김민지 청첩장",
+  brideOgTitle: "김민지 · 임석의 청첩장",
   ogDesc: "2026년 6월 27일에 결혼합니다.",
   ogImageUrl: "https://pub-541f6889b5904f0f90489aaa3c4c69fa.r2.dev/og.jpg", 
 

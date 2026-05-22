@@ -1,13 +1,17 @@
 import {
+  ArrowRight,
+  Bus,
+  Calendar,
+  Car,
   Copy,
   EmojiLookLeft,
   EmojiLookRight,
   MessageText,
   Phone,
   Pin,
+  Train,
 } from "iconoir-react";
 import React, {
-  Fragment,
   MouseEventHandler,
   useEffect,
   useRef,
@@ -30,11 +34,15 @@ import {
   BubbleAlignment,
   BoxShadowStyle,
   BubbleHeadStyle,
+  Btn,
+  Kicker,
   Main,
   SectionHeader,
   SectionHr,
+  T,
   TextSansStyle,
 } from "./styles";
+import SingleMap from "./SingleMap";
 import EditTalk from "./talk/EditTalk";
 import WriteTalk from "./talk/WriteTalk";
 
@@ -42,7 +50,9 @@ const Hero = styled.section`
   position: relative;
   width: 100%;
   overflow: hidden;
-  background: #F5F1EA;
+  padding: 56px 0 48px;
+  background: ${T.bg};
+  text-align: center;
 `;
 
 const HeroInner = styled.div`
@@ -50,110 +60,91 @@ const HeroInner = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 32px 24px 24px;
-  color: #5f6654;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 0 24px;
+  color: ${T.ink};
   text-align: center;
 `;
 
 const HeroTree = styled.img`
-  width: 164%;
-  max-width: 840px;
-  height: min(38svh, 360px);
+  display: block;
+  width: 62%;
+  max-width: 240px;
+  height: auto;
   object-fit: contain;
   object-position: top center;
-  margin: 0 0 -52px;
+  margin: 28px auto 8px;
+  opacity: 0.95;
 `;
 
-const HeroDivider = styled.div`
+const HeroNames = styled.h1`
+  margin: 12px 0 18px;
+  color: ${T.ink};
+  font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
+  font-size: 40px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+`;
+
+const HeroNameDot = styled.span`
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin: 0 14px;
+  border-radius: 5px;
+  background: ${T.accent};
+  vertical-align: 8px;
+`;
+
+const HeroDateWrap = styled.div`
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin: 10px 0 18px;
-  color: #9aa28d;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 24px;
 
   span {
-    width: 56px;
+    width: 20px;
     height: 1px;
-    background: rgba(120, 128, 108, 0.35);
-  }
-
-  em {
-    font-size: 18px;
-    font-style: normal;
+    background: ${T.accentSft};
   }
 `;
 
-const HeroKrNames = styled.p`
-  margin: 0 0 24px;
-  color: #5a5a50;
-  font-family: "Noto Serif KR", serif;
-  font-size: 22px;
-  letter-spacing: 0;
+const HeroDate = styled.p`
+  margin: 0;
+  color: ${T.accent};
+  font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  letter-spacing: 0.32em;
+  line-height: 1.4;
 `;
 
 const HeroEventDetail = styled.p`
   margin: 0;
-  color: #5f6654;
-  font-family: "Noto Serif KR", serif;
-  font-size: 16px;
-  line-height: 1.9;
-  letter-spacing: 0;
+  color: ${T.inkSoft};
+  font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
+  font-size: 15px;
+  line-height: 1.8;
+  letter-spacing: 0.02em;
 `;
 
 const HeroActionWrap = styled.div`
   display: flex;
-  justify-content: center;
-  margin-top: 24px;
-`;
-
-const ReferenceActionStyle = css`
-  ${TextSansStyle}
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 300px;
-  max-width: calc(100vw - 64px);
-  min-height: 48px;
-  padding: 12px 16px;
-  border: 1px solid #c9cbd1;
-  border-radius: 9px;
-  color: #333;
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 1.4;
-  text-decoration: none;
-  background: transparent;
-  transition: background 160ms ease, border-color 160ms ease,
-    color 160ms ease;
-
-  &&,
-  &&:link,
-  &&:visited,
-  &&:hover {
-    color: #333;
-    text-decoration: none;
-  }
-
-  &:hover {
-    border-color: #b6b8be;
-    background: rgba(255, 255, 255, 0.38);
-  }
-`;
-
-const HeroActionButton = styled.a`
-  ${ReferenceActionStyle}
-`;
-
-const HeroSectionHr = styled.hr`
-  width: 100px;
-  margin: 38px auto 0;
-  border: 0;
-  border-top: 1px solid #ccc;
+  width: 100%;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 32px;
+  padding: 0 12px;
 `;
 
 const FirstSectionHeader = styled(SectionHeader)`
-  margin-top: 28px;
-  margin-bottom: 24px;
+  margin-top: 72px;
+`;
+
+const HeroKicker = styled(Kicker)`
+  padding: 0 24px;
 `;
 
 const getSideFullName = (content: Content, side: InvitationSide) =>
@@ -174,6 +165,39 @@ const getPartyAlignment = (
 const getAlignmentIcon = (alignment: BubbleAlignment) =>
   alignment === "right" ? <EmojiLookLeft /> : <EmojiLookRight />;
 
+const formatHeroDate = (start: string) => {
+  const match = start.match(/^(\d{4})(\d{2})(\d{2})/);
+  if (!match) return "2026 . 06 . 27 · SAT";
+
+  const [, year, month, day] = match;
+  const weekday = new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    timeZone: "Asia/Seoul",
+  })
+    .format(new Date(`${year}-${month}-${day}T00:00:00+09:00`))
+    .toUpperCase();
+
+  return `${year} . ${month} . ${day} · ${weekday}`;
+};
+
+const getEventTimeText = (datetime: string) => {
+  const match = datetime.match(/(오전|오후)\s*\d+시(?:\s*\d+분)?/);
+  return match?.[0] ?? datetime;
+};
+
+const getCalendarUrl = (content: Content) => {
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: content.calendarEvent.title,
+    dates: `${content.calendarEvent.start}/${content.calendarEvent.end}`,
+    ctz: content.calendarEvent.timeZone,
+    location: content.calendarEvent.location,
+    details: content.calendarEvent.details,
+  });
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+};
+
 const InvitationHero = ({
   content: c,
   isInvitationVersion,
@@ -183,90 +207,151 @@ const InvitationHero = ({
   isInvitationVersion: boolean;
   primarySide: InvitationSide;
 }) => {
-  const orderedNames = getOrderedInvitationSides(primarySide)
-    .map((side) => getSideFullName(c, side))
-    .join(" · ");
+  const orderedNames = getOrderedInvitationSides(primarySide).map((side) =>
+    getSideFullName(c, side)
+  );
+  const calendarUrl = getCalendarUrl(c);
 
   return (
     <Hero>
       <HeroInner>
+        <HeroKicker>We Invite You · 결혼합니다</HeroKicker>
         <HeroTree src="/tree_transparent.png" alt="연리지 나무" />
 
-        <HeroDivider>
-          <span />
-          <em>❦</em>
-          <span />
-        </HeroDivider>
+        <HeroNames>
+          <span>{orderedNames[0]}</span>
+          <HeroNameDot />
+          <span>{orderedNames[1]}</span>
+        </HeroNames>
 
-        <HeroKrNames>{orderedNames}</HeroKrNames>
+        <HeroDateWrap>
+          <span />
+          <HeroDate>{formatHeroDate(c.calendarEvent.start)}</HeroDate>
+          <span />
+        </HeroDateWrap>
+
         <HeroEventDetail>
-          {c.datetime}
+          {getEventTimeText(c.datetime)}
           <br />
           {c.venue.desc}
         </HeroEventDetail>
-        {isInvitationVersion && c.rsvpFormUrl && (
+        {isInvitationVersion && (
           <HeroActionWrap>
-            <HeroActionButton
-              href={c.rsvpFormUrl}
+            {c.rsvpFormUrl && (
+              <Btn
+                as="a"
+                href={c.rsvpFormUrl}
+                target="_blank"
+                rel="noreferrer"
+                $variant="primary"
+                $full
+              >
+                <ArrowRight />
+                참석 의사 전달하기
+              </Btn>
+            )}
+            <Btn
+              as="a"
+              href={calendarUrl}
               target="_blank"
               rel="noreferrer"
+              $variant="secondary"
+              $full
             >
-              참석 의사 전달하기
-            </HeroActionButton>
+              <Calendar />
+              캘린더에 추가
+            </Btn>
           </HeroActionWrap>
         )}
-        <HeroSectionHr />
       </HeroInner>
     </Hero>
   );
 };
 
 const GreetingP = styled.p`
-  white-space: pre;
-  margin: 30px 0;
+  margin: 0;
+  padding: 0 28px;
+  color: ${T.inkSoft};
+  font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  line-height: 1.95;
+  text-align: center;
+  white-space: pre-line;
 `;
 
 const CallWrap = styled.div`
   display: flex;
-  flex-direction: row;
-  justify-content: center;
-  margin: 40px 0 20px;
-  > * {
-    margin: 0 15px;
-  }
+  flex-direction: column;
+  gap: 8px;
+  margin: 28px 24px 0;
 `;
 
 const ContactTrigger = styled.button`
-  padding: 0;
-  border: 0;
-  color: inherit;
-  background: none;
-`;
-
-const CallButtonWrap = styled.div<{ $bgColor: string }>`
   ${TextSansStyle}
-  width: 118px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 18px;
+  border: 1px solid ${T.rule};
+  border-radius: 6px;
+  color: ${T.ink};
+  background: transparent;
   font-size: 14px;
-  line-height: 1.4;
-  text-align: center;
-  white-space: nowrap;
+  line-height: 1.35;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
 
   svg {
-    display: block;
-    box-sizing: border-box;
-    margin: 0 auto;
-    margin-bottom: 12px;
-    width: 60px;
-    height: 60px;
-    min-width: 60px;
-    max-width: 60px;
-    min-height: 60px;
-    max-height: 60px;
-    color: white;
-    padding: 15px;
-    border-radius: 30px;
-    background-color: ${({ $bgColor }) => $bgColor};
+    width: 16px;
+    height: 16px;
+    color: ${T.accent};
   }
+
+  > svg:last-child {
+    color: ${T.inkMuted};
+  }
+`;
+
+const ParentGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin: 36px 28px 0;
+  padding-top: 28px;
+  border-top: 1px solid ${T.rule};
+`;
+
+const ParentCard = styled.div<{ $withBorder: boolean }>`
+  padding: 4px 12px;
+  border-left: ${({ $withBorder }) =>
+    $withBorder ? `1px solid ${T.rule}` : 0};
+  color: ${T.inkSoft};
+  font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
+  font-size: 13.5px;
+  line-height: 1.9;
+`;
+
+const ParentSide = styled(Kicker)`
+  margin-bottom: 6px;
+  color: ${T.inkMuted};
+`;
+
+const ParentRole = styled.div`
+  color: ${T.inkMuted};
+  font-size: 12px;
+`;
+
+const ParentChildName = styled.div`
+  margin-top: 4px;
+  color: ${T.ink};
+  font-size: 18px;
+  letter-spacing: 0.06em;
 `;
 
 const ContactList = styled.div`
@@ -358,21 +443,6 @@ const ContactModalClose = styled.button`
   background: #f3f3f3;
 `;
 
-type CallButtonProps = {
-  icon: React.ReactNode;
-  bgColor: string;
-  label: string;
-};
-
-const CallButton = ({ icon, bgColor, label }: CallButtonProps) => (
-  <>
-    <CallButtonWrap $bgColor={bgColor}>
-      {icon}
-      {label}
-    </CallButtonWrap>
-  </>
-);
-
 const brideContacts = [
   { label: "신부", phone: "010-3934-5499" },
   { label: "신부 아버님", phone: "010-3156-5286" },
@@ -428,107 +498,300 @@ const ContactModal = ({
   </ContactModalCard>
 );
 
-const DirectionsImageWrap = styled.div`
+const parseFamilyLine = (line: string) => {
+  const match = line.match(/^(.+?)의\s+(.+)\s+(\S+)$/);
+
+  if (!match) {
+    return { parents: line, role: "", name: "" };
+  }
+
+  return {
+    parents: match[1],
+    role: `의 ${match[2]}`,
+    name: match[3],
+  };
+};
+
+const DirectionsWrap = styled.section`
+  padding-top: 72px;
+`;
+
+const DirectionsContent = styled.div`
+  padding: 0 24px;
+`;
+
+const VenueCard = styled.div`
+  margin-bottom: 16px;
+  padding: 18px;
+  border: 1px solid ${T.rule};
+  background: ${T.paper};
+  text-align: center;
+`;
+
+const VenueName = styled.p`
+  margin: 0;
+  color: ${T.ink};
+  font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
+  font-size: 17px;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+`;
+
+const VenueAddress = styled.p`
+  ${TextSansStyle}
+  margin: 4px 0 14px;
+  color: ${T.inkMuted};
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+`;
+
+const MapButtonRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+`;
+
+const MapFrame = styled.div`
+  width: 100%;
+`;
+
+const TransportList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  width: calc(100% - 40px);
-  max-width: 360px;
-  margin: 0 auto 24px;
+  margin-top: 24px;
 `;
 
-const DirectionsImage = styled.img`
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
+const TransportCard = styled.div`
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid ${T.rule};
+  text-align: left;
 `;
 
-const WeddingPhoto = styled.img`
-  display: block;
-  width: calc(100% - 40px);
-  max-width: 360px;
-  height: auto;
-  margin: 52px auto 20px;
-  border-radius: 8px;
-`;
+const TransportIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  color: ${T.accent};
+  background: ${T.bgSoft};
 
-const MapButton = styled.a`
-  ${TextSansStyle}
-  display: inline-block;
-  padding: 8px 16px 8px 10px;
-  border: 0;
-  border-radius: 18px;
-  margin: 0 10px;
-  color: #666;
-  font-size: 15px;
-  text-decoration: none;
-  background: #f3f3f3;
-  line-height: 1.3;
-  > svg {
-    display: inline-block;
+  svg {
     width: 18px;
     height: 18px;
-    margin: -4px 0;
-    margin-right: 4px;
   }
 `;
 
-const GuideWrap = styled.div`
-  display: inline-block;
-  width: calc(100% - 60px);
-  max-width: 340px;
-  margin-top: 40px;
+const TransportTitle = styled.h3`
+  margin: 0 0 4px;
+  color: ${T.ink};
+  font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+`;
+
+const TransportText = styled.p`
+  ${TextSansStyle}
+  margin: 0;
+  color: ${T.inkSoft};
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: pre-line;
+`;
+
+const TransportTitleRow = styled.div`
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+`;
+
+const ShuttleMoreButton = styled.button`
+  ${TextSansStyle}
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  color: ${T.accent};
+  background: transparent;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  white-space: nowrap;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+`;
+
+const ShuttleSummary = styled.div`
+  padding: 10px 12px;
+  border: 1px solid ${T.rule};
+  border-radius: 6px;
+  background: ${T.paper};
+`;
+
+const ShuttleHint = styled.p`
+  ${TextSansStyle}
+  margin: 8px 0 0;
+  color: ${T.inkMuted};
+  font-size: 12px;
+  line-height: 1.6;
+`;
+
+const ShuttleModalCard = styled.div`
+  width: calc(100% - 40px);
+  max-width: 360px;
+  max-height: calc(100svh - 40px);
+  overflow: auto;
+  margin: 0 auto;
+  border: 1px solid ${T.rule};
+  border-radius: 10px;
+  background: ${T.bg};
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.18);
+`;
+
+const ShuttleModalHeader = styled.div`
+  padding: 24px 24px 8px;
   text-align: center;
-  line-height: 2;
+`;
 
-  h3 {
-    margin-top: 24px;
-    font-size: 17px;
-    font-weight: 500;
+const ShuttleModalTitle = styled.h3`
+  margin: 8px 0 0;
+  color: ${T.ink};
+  font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+`;
+
+const ShuttleModalSub = styled.p`
+  ${TextSansStyle}
+  margin: 6px 0 0;
+  color: ${T.inkMuted};
+  font-size: 12.5px;
+  line-height: 1.6;
+`;
+
+const ShuttleModalBody = styled.div`
+  padding: 8px 24px 16px;
+`;
+
+const ShuttleDetailBox = styled.div`
+  padding: 4px 14px;
+  border: 1px solid ${T.rule};
+  border-radius: 6px;
+  background: ${T.paper};
+`;
+
+const DetailRowWrap = styled.div<{ $last?: boolean }>`
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  gap: 12px;
+  align-items: baseline;
+  padding: 12px 0;
+  border-bottom: ${({ $last }) => ($last ? 0 : `1px solid ${T.rule}`)};
+`;
+
+const DetailLabel = styled.div`
+  color: ${T.accent};
+  font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  line-height: 1.5;
+  text-transform: uppercase;
+`;
+
+const DetailValue = styled.div`
+  ${TextSansStyle}
+  color: ${T.ink};
+  font-size: 13.5px;
+  line-height: 1.65;
+  white-space: pre-line;
+`;
+
+const ShuttlePhoneLink = styled.a`
+  ${TextSansStyle}
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 4px 8px;
+  border: 1px solid ${T.rule};
+  border-radius: 100px;
+  color: ${T.accent};
+  font-size: 12px;
+  line-height: 1.4;
+  text-decoration: none;
+
+  &&,
+  &&:link,
+  &&:visited,
+  &&:hover {
+    color: ${T.accent};
   }
 
-  h3:first-child {
-    margin-top: 0;
-  }
-
-  p {
-    white-space: pre-line;
-    margin: 6px 0 0;
+  svg {
+    width: 14px;
+    height: 14px;
   }
 `;
 
-const GuideActionWrap = styled.div`
-  text-align: center;
-`;
-
-const GuideActionButton = styled.a`
-  ${ReferenceActionStyle}
-  margin-top: 12px;
+const ShuttleModalFooter = styled.div`
+  padding: 0 24px 24px;
 `;
 
 const RsvpInfoText = styled.p`
   white-space: pre-line;
   margin: 0 24px 18px;
-  line-height: 2;
+  color: ${T.inkSoft};
+  font-size: 14px;
+  line-height: 1.8;
 `;
 
-const RsvpInfoButton = styled.a`
-  ${ReferenceActionStyle}
+const RsvpWrap = styled.section`
+  padding-top: 72px;
+`;
+
+const RsvpContent = styled.div`
+  padding: 0 24px;
+`;
+
+const RsvpMeta = styled.p`
+  margin: 14px 0 0;
+  color: ${T.inkMuted};
+  font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  line-height: 1.5;
+  text-align: center;
+  text-transform: uppercase;
 `;
 
 const GiveWrap = styled.div`
-  display: inline-block;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 24px;
   text-align: center;
-  line-height: 2;
 `;
 
 const GiveGroup = styled.div`
-  margin-bottom: 20px;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
+  overflow: hidden;
+  border: 1px solid ${T.rule};
+  border-radius: 6px;
 `;
 
 const CopyTextButton = styled.button`
@@ -550,18 +813,49 @@ const CopyTextButton = styled.button`
 `;
 
 const AccountRevealButton = styled.button`
-  ${ReferenceActionStyle}
+  ${TextSansStyle}
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 16px 18px;
+  border: 0;
+  color: ${T.ink};
+  background: transparent;
+  font-size: 14px;
+  line-height: 1.35;
+  text-align: left;
+
+  > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+    color: ${T.inkMuted};
+    transition: transform 200ms ease;
+  }
 `;
 
-const AccountList = styled(ContactList)``;
+const AccountRevealArrow = styled(ArrowRight)<{ $open: boolean }>`
+  transform: ${({ $open }) => ($open ? "rotate(90deg)" : "none")};
+`;
+
+const AccountList = styled.div`
+  background: ${T.paper};
+  border-top: 1px solid ${T.rule};
+`;
 
 const AccountRow = styled.div`
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr) auto;
+  grid-template-columns: 60px minmax(0, 1fr) 36px;
   gap: 10px;
   align-items: center;
-  padding: 8px 0;
-  border-top: 1px solid #dddddd;
+  padding: 12px 16px;
+  border-top: 1px solid ${T.rule};
 
   &:first-child {
     border-top: 0;
@@ -569,11 +863,17 @@ const AccountRow = styled.div`
 `;
 
 const AccountName = styled(ContactText)`
-  font-weight: 700;
+  color: ${T.ink};
+  font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
+  font-size: 14px;
+  font-weight: 400;
 `;
 
 const AccountNumber = styled(ContactText)`
-  font-size: 14px;
+  color: ${T.inkSoft};
+  font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  letter-spacing: 0.02em;
   white-space: normal;
   word-break: keep-all;
   overflow-wrap: anywhere;
@@ -621,24 +921,6 @@ const AccountPanel = ({ accounts }: { accounts: AccountItem[] }) => (
   </AccountList>
 );
 
-const AccountModal = ({
-  accounts,
-  onClose,
-  title,
-}: {
-  accounts: AccountItem[];
-  onClose: () => void;
-  title: string;
-}) => (
-  <ContactModalCard>
-    <ContactModalTitle>{title}</ContactModalTitle>
-    <AccountPanel accounts={accounts} />
-    <ContactModalClose type="button" onClick={onClose}>
-      닫기
-    </ContactModalClose>
-  </ContactModalCard>
-);
-
 const AccountReveal = ({
   accounts,
   title,
@@ -646,47 +928,126 @@ const AccountReveal = ({
   accounts: AccountItem[];
   title: string;
 }) => {
-  const [isModalShown, setModalShown] = useState(false);
+  const [isOpen, setOpen] = useState(false);
 
   return (
     <>
-      <AccountRevealButton type="button" onClick={() => setModalShown(true)}>
-        계좌번호 보기
+      <AccountRevealButton
+        type="button"
+        aria-expanded={isOpen}
+        onClick={() => setOpen((open) => !open)}
+      >
+        <span>
+          <Kicker>{title.replace(" 계좌번호", "")}</Kicker>
+          <span>계좌 안내</span>
+        </span>
+        <AccountRevealArrow $open={isOpen} />
       </AccountRevealButton>
-      {isModalShown && (
-        <Modal handleClose={() => setModalShown(false)}>
-          <AccountModal
-            accounts={accounts}
-            title={title}
-            onClose={() => setModalShown(false)}
-          />
-        </Modal>
-      )}
+      {isOpen && <AccountPanel accounts={accounts} />}
     </>
   );
 };
 
-type GuideSection = {
+type TransportSection = {
   title: string;
   content: string;
-  actionLabel?: string;
-  actionHref?: string;
+  icon: React.ReactNode;
 };
-const guideSections = [
+const transportSections: TransportSection[] = [
   {
-    title: "주차안내",
-    content: "예식장 내 주차 안내에 따라 편하게 주차하실 수 있습니다.",
+    title: "자가용",
+    content: "영동고속 양지 IC 또는 용인 IC에서 약 10분.\n예식장 내 무료 주차 가능합니다.",
+    icon: <Car />,
   },
   {
-    title: "전세버스 안내",
-    content:
-      "서울 출발 전세 버스를 운영 할 예정입니다.\n참석 의사 전달 시 전세버스 탑승 여부를 기재해주세요.\n추후 개별 안내 드릴 예정입니다.",
+    title: "대중교통",
+    content: "용인공용버스터미널 하차 → 택시로 약 15분.",
+    icon: <Train />,
   },
-  {
-    title: "대중교통 안내",
-    content: `용인공용버스터미널 근처 하차 → 택시 탑승`,
-  },
-] as GuideSection[];
+];
+
+const shuttle = {
+  departTime: "2026. 06. 27 (토) 오전 10:30",
+  departPlace: "서울 강남역 6번 출구 앞",
+  returnTime: "2026. 06. 27 (토) 오후 4:00 (예식 종료 후 출발)",
+  notes:
+    "· 좌석은 RSVP 접수 순으로 배정됩니다.\n· 정원 초과 시 추가 차량을 운영할 수 있습니다.\n· 출발 30분 전 도착 부탁드립니다.",
+  contactName: "신랑측",
+  contactPhone: groomContacts[0].phone,
+};
+
+const DetailRow = ({
+  children,
+  label,
+  last,
+}: {
+  children: React.ReactNode;
+  label: string;
+  last?: boolean;
+}) => (
+  <DetailRowWrap $last={last}>
+    <DetailLabel>{label}</DetailLabel>
+    <DetailValue>{children}</DetailValue>
+  </DetailRowWrap>
+);
+
+const ShuttleCard = ({ onOpen }: { onOpen: () => void }) => (
+  <TransportCard>
+    <TransportIcon>
+      <Bus />
+    </TransportIcon>
+    <div>
+      <TransportTitleRow>
+        <TransportTitle>전세버스</TransportTitle>
+        <ShuttleMoreButton type="button" onClick={onOpen}>
+          자세히 보기
+          <ArrowRight />
+        </ShuttleMoreButton>
+      </TransportTitleRow>
+      <ShuttleSummary>
+        <DetailRow label="출발일시">{shuttle.departTime}</DetailRow>
+        <DetailRow label="탑승장소" last>
+          {shuttle.departPlace}
+        </DetailRow>
+      </ShuttleSummary>
+      <ShuttleHint>RSVP 시 탑승 여부를 함께 전달해 주세요.</ShuttleHint>
+    </div>
+  </TransportCard>
+);
+
+const ShuttleModal = ({ onClose }: { onClose: () => void }) => (
+  <ShuttleModalCard>
+    <ShuttleModalHeader>
+      <Kicker>Shuttle bus · 전세버스 안내</Kicker>
+      <ShuttleModalTitle>서울 출발 전세버스</ShuttleModalTitle>
+      <ShuttleModalSub>
+        RSVP 시 탑승 여부를 함께 전달해 주세요.
+      </ShuttleModalSub>
+    </ShuttleModalHeader>
+    <ShuttleModalBody>
+      <ShuttleDetailBox>
+        <DetailRow label="출발일시">{shuttle.departTime}</DetailRow>
+        <DetailRow label="탑승장소">{shuttle.departPlace}</DetailRow>
+        <DetailRow label="복귀일시">{shuttle.returnTime}</DetailRow>
+        <DetailRow label="추가 안내">{shuttle.notes}</DetailRow>
+        <DetailRow label="탑승 문의" last>
+          {shuttle.contactName}
+          <div>
+            <ShuttlePhoneLink href={`tel:${shuttle.contactPhone.replaceAll("-", "")}`}>
+              <Phone />
+              {shuttle.contactPhone}
+            </ShuttlePhoneLink>
+          </div>
+        </DetailRow>
+      </ShuttleDetailBox>
+    </ShuttleModalBody>
+    <ShuttleModalFooter>
+      <Btn type="button" $variant="primary" $full onClick={onClose}>
+        닫기
+      </Btn>
+    </ShuttleModalFooter>
+  </ShuttleModalCard>
+);
 
 const WriteSectionSubHeader = styled.div`
   padding: 0 20px;
@@ -717,14 +1078,16 @@ const WriteButton = styled.button<{ $visible: boolean }>`
 
   width: calc(100% - 40px);
   max-width: calc(400px - 40px);
-  padding: 16px;
-  border: 0;
-  border-radius: 8px;
+  min-height: 48px;
+  padding: 14px 18px;
+  border: 1px solid ${T.rule};
+  border-radius: 6px;
 
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  background: rgba(255, 136, 170, 0.9);
+  color: ${T.ink};
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  background: rgba(251, 248, 241, 0.96);
 
   ${BoxShadowStyle}
 
@@ -882,6 +1245,83 @@ const ThankYou = styled.div`
   color: #666;
 `;
 
+const ClosingSection = styled.section`
+  padding: 88px 0 64px;
+  text-align: center;
+`;
+
+const ClosingOrnament = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  span {
+    display: inline-block;
+  }
+
+  span:nth-child(1),
+  span:nth-child(3) {
+    width: 28px;
+    height: 1px;
+    background: ${T.accentSft};
+  }
+
+  span:nth-child(2) {
+    width: 4px;
+    height: 4px;
+    border-radius: 4px;
+    background: ${T.accentSft};
+  }
+`;
+
+const Monogram = styled.div`
+  margin-top: 28px;
+  text-align: center;
+`;
+
+const MonogramNames = styled.div`
+  color: ${T.ink};
+  font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
+  font-size: 46px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  line-height: 1.2;
+`;
+
+const MonogramDot = styled.span`
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin: 0 14px;
+  border-radius: 6px;
+  background: ${T.accent};
+  vertical-align: 12px;
+`;
+
+const MonogramDate = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+
+  span {
+    width: 36px;
+    height: 1px;
+    background: ${T.accentSft};
+  }
+`;
+
+const ClosingThanks = styled.p`
+  margin: 18px 0 0;
+  color: ${T.inkMuted};
+  font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+`;
+
 type HomeProps = {
   content: Content;
   variant: InvitationVariant;
@@ -897,6 +1337,7 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
   const [showEditTalkModal, setShowEditTalkModal] = useState<Talk>();
   const [showBrideContactModal, setShowBrideContactModal] = useState(false);
   const [showGroomContactModal, setShowGroomContactModal] = useState(false);
+  const [showShuttleModal, setShowShuttleModal] = useState(false);
   const [isWriteButtonShown, setWriteButtonShown] = useState(false);
   const [selectedTalkId, setSelectedTalkId] = useState<string>();
 
@@ -937,33 +1378,41 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
     mutate();
   };
   const handleEditTalkModalClose = () => setShowEditTalkModal(undefined);
+  const handleCopyAddress = () => {
+    navigator.clipboard
+      .writeText(c.venue.address)
+      .catch(() => {
+        const $text = document.createElement("textarea");
+        document.body.appendChild($text);
+        $text.value = c.venue.address;
+        $text.select();
+        document.execCommand("copy");
+        document.body.removeChild($text);
+      })
+      .then(() => alert("주소가 복사 되었습니다."));
+  };
   const isInvitationVersion = variant !== "nomap";
   const orderedSides = getOrderedInvitationSides(primarySide);
-  const greetingParagraphs = [
-    ...c.greeting.content,
-    orderedSides.map((side) => getSideFamilyLine(c, side)).join("\n"),
-  ];
+  const greetingParagraphs = c.greeting.content;
   const sideContent = {
     bride: {
       accountTitle: "신부측 계좌번호",
       accounts: c.brideGive,
-      bgColor: "#c2e0a3",
       contactButtonLabel: "신부 측에 연락하기",
       contactModalTitle: "신부 측 연락처",
       contacts: brideContacts,
-      icon: <EmojiLookLeft />,
       label: "신부측",
+      parentLabel: "신부",
       onContactClick: () => setShowBrideContactModal(true),
     },
     groom: {
       accountTitle: "신랑측 계좌번호",
       accounts: c.groomGive,
-      bgColor: "#abdaab",
       contactButtonLabel: "신랑 측에 연락하기",
       contactModalTitle: "신랑 측 연락처",
       contacts: groomContacts,
-      icon: <EmojiLookRight />,
       label: "신랑측",
+      parentLabel: "신랑",
       onContactClick: () => setShowGroomContactModal(true),
     },
   };
@@ -976,7 +1425,7 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
         primarySide={primarySide}
       />
       <Main>
-      <FirstSectionHeader>{c.greeting.title}</FirstSectionHeader>
+      <FirstSectionHeader kicker="01 · Invitation" title="함께하는 새로운 시작" />
       {greetingParagraphs.map((p, i) => (
         <GreetingP key={i}>
           {p
@@ -985,6 +1434,21 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
             .join("\n")}
         </GreetingP>
       ))}
+      <ParentGrid>
+        {orderedSides.map((side, index) => {
+          const item = sideContent[side];
+          const family = parseFamilyLine(getSideFamilyLine(c, side));
+
+          return (
+            <ParentCard key={side} $withBorder={index > 0}>
+              <ParentSide>{item.parentLabel}</ParentSide>
+              <div>{family.parents}</div>
+              {family.role && <ParentRole>{family.role}</ParentRole>}
+              {family.name && <ParentChildName>{family.name}</ParentChildName>}
+            </ParentCard>
+          );
+        })}
+      </ParentGrid>
       <CallWrap>
         {orderedSides.map((side) => {
           const item = sideContent[side];
@@ -995,85 +1459,128 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
               type="button"
               onClick={item.onContactClick}
             >
-              <CallButton
-                icon={item.icon}
-                bgColor={item.bgColor}
-                label={item.contactButtonLabel}
-              />
+              <span>
+                <Phone />
+                {item.contactButtonLabel}
+              </span>
+              <ArrowRight />
             </ContactTrigger>
           );
         })}
       </CallWrap>
-      <WeddingPhoto src="/wed_photo.jpeg" alt="웨딩 사진" />
       {isInvitationVersion && (
-        <>
-          <SectionHr />
-          <SectionHeader>오시는 길</SectionHeader>
-          <DirectionsImageWrap>
-            <DirectionsImage src="/directions1.jpeg" alt="오시는 길 안내 1" />
-            <DirectionsImage src="/directions2.jpeg" alt="오시는 길 안내 2" />
-          </DirectionsImageWrap>
-          <p>
-            {c.venue.address}
-            <br />
-            {c.venue.desc}
-          </p>
-          <MapButton href={c.venue.kakaoMapUrl}>
-            <Pin color="#1199EE" /> 카카오맵
-          </MapButton>
-          <MapButton href={c.venue.naverMapUrl}>
-            <Pin color="#66BB66" /> 네이버지도
-          </MapButton>
-          <GuideWrap>
-            {guideSections.map((section) => (
-              <Fragment key={section.title}>
-                <h3>{section.title}</h3>
-                <p>{section.content}</p>
-                {"actionLabel" in section && section.actionLabel && (
-                  <GuideActionWrap>
-                    <GuideActionButton
-                      href={section.actionHref}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {section.actionLabel}
-                    </GuideActionButton>
-                  </GuideActionWrap>
-                )}
-              </Fragment>
-            ))}
-          </GuideWrap>
-        </>
+        <DirectionsWrap>
+          <SectionHeader kicker="03 · Directions" title="오시는 길" />
+          <DirectionsContent>
+            <VenueCard>
+              <VenueName>{c.venue.desc}</VenueName>
+              <VenueAddress>{c.venue.address}</VenueAddress>
+              <MapButtonRow>
+                <Btn
+                  as="a"
+                  href={c.venue.kakaoMapUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  $variant="tertiary"
+                >
+                  <Pin />
+                  카카오맵
+                </Btn>
+                <Btn
+                  as="a"
+                  href={c.venue.naverMapUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  $variant="tertiary"
+                >
+                  <Pin />
+                  네이버지도
+                </Btn>
+                <Btn type="button" $variant="tertiary" onClick={handleCopyAddress}>
+                  <Copy />
+                  주소 복사
+                </Btn>
+              </MapButtonRow>
+            </VenueCard>
+
+            <MapFrame>
+              <SingleMap />
+            </MapFrame>
+
+            <TransportList>
+              {transportSections.slice(0, 1).map((section) => (
+                <TransportCard key={section.title}>
+                  <TransportIcon>{section.icon}</TransportIcon>
+                  <div>
+                    <TransportTitle>{section.title}</TransportTitle>
+                    <TransportText>{section.content}</TransportText>
+                  </div>
+                </TransportCard>
+              ))}
+              <ShuttleCard onOpen={() => setShowShuttleModal(true)} />
+              {transportSections.slice(1).map((section) => (
+                <TransportCard key={section.title}>
+                  <TransportIcon>{section.icon}</TransportIcon>
+                  <div>
+                    <TransportTitle>{section.title}</TransportTitle>
+                    <TransportText>{section.content}</TransportText>
+                  </div>
+                </TransportCard>
+              ))}
+            </TransportList>
+          </DirectionsContent>
+        </DirectionsWrap>
       )}
+      <RsvpWrap>
+        <SectionHeader
+          kicker="04 · RSVP"
+          title="참석 여부 전달"
+          sub={`귀한 마음으로 모실 수 있도록\n부담 없이 알려주시면 정성껏 준비하겠습니다.`}
+        />
+        <RsvpContent>
+          <RsvpInfoText>
+            축하의 마음으로 참석해 주시는 한 분 한 분 정성을 다해
+            준비하겠습니다.
+          </RsvpInfoText>
+          {c.rsvpFormUrl && (
+            <Btn
+              as="a"
+              href={c.rsvpFormUrl}
+              target="_blank"
+              rel="noreferrer"
+              $variant="primary"
+              $full
+            >
+              <ArrowRight />
+              참석 의사 전달하기
+            </Btn>
+          )}
+          <RsvpMeta>— by 06.13 —</RsvpMeta>
+        </RsvpContent>
+      </RsvpWrap>
       <SectionHr />
-      <SectionHeader>참석 여부 전달</SectionHeader>
-      <RsvpInfoText>
-        {`축하의 마음으로 참석해 주시는 한 분 한 분
-귀한 마음으로 모실 수 있도록
-부담 없이 알려주시면 정성을 다해 준비하겠습니다.`}
-      </RsvpInfoText>
-      {c.rsvpFormUrl && (
-        <RsvpInfoButton href={c.rsvpFormUrl} target="_blank" rel="noreferrer">
-          참석 의사 전달하기
-        </RsvpInfoButton>
-      )}
-      <SectionHr />
-      <SectionHeader>마음 전하실 곳</SectionHeader>
+      <SectionHeader
+        kicker="05 · Gratitude"
+        title="마음 전하실 곳"
+        sub="참석이 어려우신 분들을 위해 마련했습니다."
+      />
       <GiveWrap>
         {orderedSides.map((side) => {
           const item = sideContent[side];
 
           return (
             <GiveGroup key={side}>
-              <strong>{item.label}</strong>
-              <br />
               <AccountReveal accounts={item.accounts} title={item.accountTitle} />
             </GiveGroup>
           );
         })}
       </GiveWrap>
       <SectionHr />
-      <SectionHeader>축하의 한마디</SectionHeader>
+      <SectionHeader
+        kicker="06 · Guestbook"
+        title="축하의 한마디"
+        sub="짧은 문장도 큰 힘이 됩니다."
+      />
       <WriteSectionSubHeader>
         {orderedSides.map((side) => (
           <p key={side}>{sideContent[side].label}</p>
@@ -1099,9 +1606,29 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
           $visible={isWriteButtonShown}
           onClick={handleWriteButtonClick}
         >
-          😍 나도 한마디
+          한마디 남기기
         </WriteButton>
       )}
+      <ClosingSection>
+        <ClosingOrnament>
+          <span />
+          <span />
+          <span />
+        </ClosingOrnament>
+        <Monogram>
+          <MonogramNames>
+            <span>S</span>
+            <MonogramDot />
+            <span>M</span>
+          </MonogramNames>
+          <MonogramDate>
+            <span />
+            <Kicker>2026 · 06 · 27</Kicker>
+            <span />
+          </MonogramDate>
+          <ClosingThanks>thank you</ClosingThanks>
+        </Monogram>
+      </ClosingSection>
       {showWriteTalkModal && (
         <Modal handleClose={handleWriteTalkModalClose}>
           <WriteTalk onWrite={handleWriteTalk} />
@@ -1123,6 +1650,11 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
             title={sideContent.groom.contactModalTitle}
             onClose={() => setShowGroomContactModal(false)}
           />
+        </Modal>
+      )}
+      {showShuttleModal && (
+        <Modal handleClose={() => setShowShuttleModal(false)}>
+          <ShuttleModal onClose={() => setShowShuttleModal(false)} />
         </Modal>
       )}
       {showEditTalkModal && (
