@@ -1802,7 +1802,7 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
               alt="웨딩 사진"
               $objectPosition={galleryPhoto.objectPosition}
             />
-            <GalleryCount>— 1 photo —</GalleryCount>
+            {/* <GalleryCount>— 1 photo —</GalleryCount> */}
           </GalleryContent>
         </GalleryWrap>
       )}
