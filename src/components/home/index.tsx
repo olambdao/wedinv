@@ -1592,16 +1592,27 @@ const Monogram = styled.div`
 `;
 
 const MonogramNames = styled.div`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: ${T.ink};
   font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
   font-size: 46px;
   font-weight: 400;
-  letter-spacing: 0.18em;
   line-height: 1.2;
+
+  span {
+    display: inline-flex;
+    justify-content: center;
+    width: 44px;
+    letter-spacing: 0.08em;
+    text-indent: 0.08em;
+  }
 `;
 
 const MonogramDot = styled.span`
   display: inline-block;
+  flex: 0 0 6px;
   width: 6px;
   height: 6px;
   margin: 0 14px;
@@ -1961,11 +1972,11 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
         </WriteButton>
       )}
       <ClosingSection>
-        <ClosingOrnament>
+        {/* <ClosingOrnament>
           <span />
           <span />
           <span />
-        </ClosingOrnament>
+        </ClosingOrnament> */}
         <Monogram>
           <MonogramNames>
             <span>S</span>

@@ -12,7 +12,14 @@ export const TalkHeadColors = [
   "#9AAEC4",
 ];
 
-export const TALK_ORNAMENTS = ["❦", "❀", "❁", "✿", "♡", "☘", "✦", "·"];
+export const TALK_ORNAMENTS = [
+  "💚", 
+  "♥️", 
+  "👍", 
+  "🎉", 
+  "💖", 
+  "✨"
+];
 
 export const Wrap = styled.div`
   position: relative;
@@ -122,7 +129,6 @@ export const PartyButton = styled.button<{ $selected: boolean }>`
 
 export const ComposerWrap = styled.div<{ $right: boolean }>`
   display: flex;
-  flex-direction: ${({ $right }) => ($right ? "row-reverse" : "row")};
   gap: 10px;
   align-items: flex-start;
 `;
@@ -141,7 +147,6 @@ export const ColorButton = styled.button<{ $color: string }>`
 export const ComposerFields = styled.div<{ $right: boolean }>`
   flex: 1;
   min-width: 0;
-  text-align: ${({ $right }) => ($right ? "right" : "left")};
 `;
 
 export const AuthorField = styled.input<{ $right: boolean }>`
@@ -157,7 +162,7 @@ export const AuthorField = styled.input<{ $right: boolean }>`
   font-size: 13px;
   line-height: 1.4;
   outline: none;
-  text-align: ${({ $right }) => ($right ? "right" : "left")};
+  text-align: start;
 `;
 
 export const MessageField = styled.textarea<{ $right: boolean }>`
@@ -174,12 +179,13 @@ export const MessageField = styled.textarea<{ $right: boolean }>`
   font-size: 13.5px;
   line-height: 1.55;
   outline: none;
+  text-align: start;
 `;
 
 export const OrnamentRow = styled.div<{ $right: boolean }>`
   display: flex;
   flex-wrap: wrap;
-  justify-content: ${({ $right }) => ($right ? "flex-end" : "flex-start")};
+  justify-content: flex-start;
   gap: 6px;
   margin-top: 8px;
 `;
