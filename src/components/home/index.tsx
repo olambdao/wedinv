@@ -684,49 +684,46 @@ const MapZoomOverlay = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px 16px;
   background: rgba(20, 17, 13, 0.72);
 `;
 
 const MapZoomDialog = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
-  width: calc(100vw - 32px);
+  width: 100vw;
   max-width: 920px;
-  height: calc(100svh - 64px);
+  height: 100svh;
   overflow: hidden;
-  border: 1px solid ${T.rule};
-  border-radius: 10px;
-  background: ${T.bg};
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.28);
+
+  @media (max-width: 920px) {
+    max-width: none;
+  }
 `;
 
 const MapZoomHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 14px;
-  border-bottom: 1px solid ${T.rule};
+  display: contents;
 `;
 
 const MapZoomTitle = styled.p`
-  ${TextSansStyle}
-  margin: 0;
-  color: ${T.ink};
-  font-size: 13px;
-  letter-spacing: 0.02em;
-  line-height: 1.5;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
 `;
 
 const MapZoomCloseButton = styled.button`
   ${TextSansStyle}
-  flex: 0 0 auto;
+  position: absolute;
+  z-index: 1;
+  top: 12px;
+  right: 12px;
   padding: 6px 10px;
-  border: 1px solid ${T.rule};
+  border: 0;
   border-radius: 999px;
-  color: ${T.ink};
-  background: ${T.paper};
+  color: ${T.paper};
+  background: rgba(20, 17, 13, 0.72);
   font-size: 12px;
   line-height: 1.4;
 `;
@@ -735,7 +732,6 @@ const MapZoomViewport = styled.div`
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  background: ${T.paper};
 
   > div {
     width: 100%;
@@ -1521,7 +1517,12 @@ const DirectionImageZoomModal = ({
   }, [onClose]);
 
   return (
-    <MapZoomOverlay role="dialog" aria-modal="true" onClick={onClose}>
+    <MapZoomOverlay
+      role="dialog"
+      aria-modal="true"
+      aria-label={image.alt}
+      onClick={onClose}
+    >
       <MapZoomDialog onClick={(event) => event.stopPropagation()}>
         <MapZoomHeader>
           <MapZoomTitle>{image.alt}</MapZoomTitle>
