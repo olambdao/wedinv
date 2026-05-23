@@ -11,10 +11,15 @@ import {
 } from "iconoir-react";
 import React, {
   MouseEventHandler,
+  useCallback,
   useEffect,
   useRef,
   useState,
 } from "react";
+import QuickPinchZoom, {
+  make3dTransformValue,
+  type UpdateAction,
+} from "react-quick-pinch-zoom";
 import styled, { css } from "styled-components";
 import useSWR from "swr";
 
@@ -196,6 +201,16 @@ const RSVP_DEADLINE = {
   label: "06.13",
   value: "2026-06-13T00:00:00+09:00",
 };
+
+type DirectionImageInfo = {
+  src: string;
+  alt: string;
+};
+
+const directionImages: DirectionImageInfo[] = [
+  { src: "/directions1.jpeg", alt: "오시는 길 안내 1" },
+  { src: "/directions2.jpeg", alt: "오시는 길 안내 2" },
+];
 
 const getKoreaDateStart = (date: Date) => {
   const formatter = new Intl.DateTimeFormat("en-CA", {
@@ -646,11 +661,95 @@ const MapFrame = styled.div`
   gap: 8px;
 `;
 
+const DirectionImageButton = styled.button`
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+`;
+
 const DirectionImage = styled.img`
   display: block;
   width: 100%;
   border: 1px solid ${T.rule};
   border-radius: 4px;
+`;
+
+const MapZoomOverlay = styled.div`
+  position: fixed;
+  z-index: 120;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  background: rgba(20, 17, 13, 0.72);
+`;
+
+const MapZoomDialog = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: calc(100vw - 32px);
+  max-width: 920px;
+  height: calc(100svh - 64px);
+  overflow: hidden;
+  border: 1px solid ${T.rule};
+  border-radius: 10px;
+  background: ${T.bg};
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.28);
+`;
+
+const MapZoomHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid ${T.rule};
+`;
+
+const MapZoomTitle = styled.p`
+  ${TextSansStyle}
+  margin: 0;
+  color: ${T.ink};
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+`;
+
+const MapZoomCloseButton = styled.button`
+  ${TextSansStyle}
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border: 1px solid ${T.rule};
+  border-radius: 999px;
+  color: ${T.ink};
+  background: ${T.paper};
+  font-size: 12px;
+  line-height: 1.4;
+`;
+
+const MapZoomViewport = styled.div`
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: ${T.paper};
+
+  > div {
+    width: 100%;
+    height: 100%;
+  }
+`;
+
+const ZoomableDirectionImage = styled.img`
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-origin: 0 0;
+  user-select: none;
 `;
 
 const TransportList = styled.div`
@@ -1389,6 +1488,65 @@ const TalkBubble = ({
   );
 };
 
+const DirectionImageZoomModal = ({
+  image,
+  onClose,
+}: {
+  image: DirectionImageInfo;
+  onClose: () => void;
+}) => {
+  const imageRef = useRef<HTMLImageElement>(null);
+
+  const handleUpdate = useCallback(({ x, y, scale }: UpdateAction) => {
+    imageRef.current?.style.setProperty(
+      "transform",
+      make3dTransformValue({ x, y, scale })
+    );
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  return (
+    <MapZoomOverlay role="dialog" aria-modal="true" onClick={onClose}>
+      <MapZoomDialog onClick={(event) => event.stopPropagation()}>
+        <MapZoomHeader>
+          <MapZoomTitle>{image.alt}</MapZoomTitle>
+          <MapZoomCloseButton type="button" onClick={onClose}>
+            닫기
+          </MapZoomCloseButton>
+        </MapZoomHeader>
+        <MapZoomViewport>
+          <QuickPinchZoom
+            key={image.src}
+            onUpdate={handleUpdate}
+            maxZoom={4}
+            wheelScaleFactor={500}
+            draggableUnZoomed
+            shouldInterceptWheel={() => true}
+          >
+            <ZoomableDirectionImage
+              ref={imageRef}
+              src={image.src}
+              alt={image.alt}
+              draggable={false}
+            />
+          </QuickPinchZoom>
+        </MapZoomViewport>
+      </MapZoomDialog>
+    </MapZoomOverlay>
+  );
+};
+
 const ThankYou = styled.div`
   padding: 60px;
   color: #666;
@@ -1489,6 +1647,8 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
   const [showShuttleModal, setShowShuttleModal] = useState(false);
   const [isWriteButtonShown, setWriteButtonShown] = useState(false);
   const [selectedTalkId, setSelectedTalkId] = useState<string>();
+  const [selectedDirectionImage, setSelectedDirectionImage] =
+    useState<DirectionImageInfo>();
   const [rsvpMetaText, setRsvpMetaText] = useState(
     `— by ${RSVP_DEADLINE.label} —`
   );
@@ -1513,6 +1673,10 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
 
   const handleTalkBubbleClick = (id: string | undefined) =>
     setSelectedTalkId(id);
+  const handleDirectionImageZoomClose = useCallback(
+    () => setSelectedDirectionImage(undefined),
+    []
+  );
 
   const handleWriteButtonClick = () => setShowWriteTalkModal(true);
   const handleWriteTalk = () => {
@@ -1678,8 +1842,16 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
             </VenueBlock>
 
             <MapFrame>
-              <DirectionImage src="/directions1.jpeg" alt="오시는 길 안내 1" />
-              <DirectionImage src="/directions2.jpeg" alt="오시는 길 안내 2" />
+              {directionImages.map((image, index) => (
+                <DirectionImageButton
+                  key={image.src}
+                  type="button"
+                  aria-label={`오시는 길 안내 ${index + 1} 확대`}
+                  onClick={() => setSelectedDirectionImage(image)}
+                >
+                  <DirectionImage src={image.src} alt={image.alt} />
+                </DirectionImageButton>
+              ))}
             </MapFrame>
 
             <TransportList>
@@ -1801,6 +1973,12 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
           <ClosingThanks>thank you</ClosingThanks>
         </Monogram>
       </ClosingSection>
+      {selectedDirectionImage && (
+        <DirectionImageZoomModal
+          image={selectedDirectionImage}
+          onClose={handleDirectionImageZoomClose}
+        />
+      )}
       {showWriteTalkModal && (
         <Modal handleClose={handleWriteTalkModalClose}>
           <WriteTalk onWrite={handleWriteTalk} />
