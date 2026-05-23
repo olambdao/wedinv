@@ -520,14 +520,14 @@ const ContactModalFooter = styled.div`
 
 const brideContacts = [
   { label: "신부", name: "김민지", phone: "010-3934-5499" },
-  { label: "신부 아버님", name: "김대래", phone: "010-3156-5286" },
-  { label: "신부 어머님", name: "정혜욱", phone: "010-8436-5286" },
+  { label: "아버님", name: "김대래", phone: "010-3156-5286" },
+  { label: "어머님", name: "정혜욱", phone: "010-8436-5286" },
 ];
 
 const groomContacts = [
   { label: "신랑", name: "임석의", phone: "010-4721-0265" },
-  { label: "신랑 아버님", name: "임영희", phone: "010-3592-9109" },
-  { label: "신랑 어머님", name: "최은희", phone: "010-3666-9109" },
+  { label: "아버님", name: "임영희", phone: "010-3592-9109" },
+  { label: "어머님", name: "최은희", phone: "010-3666-9109" },
 ];
 
 type ContactItem = (typeof brideContacts)[number];
@@ -784,7 +784,6 @@ const TransportIcon = styled.div`
 `;
 
 const TransportTitle = styled.h3`
-  margin: 0 0 4px;
   color: ${T.ink};
   font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
   font-size: 15px;
@@ -797,7 +796,7 @@ const TransportText = styled.p`
   ${TextSansStyle}
   margin: 0;
   color: ${T.inkSoft};
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.7;
   white-space: pre-line;
 `;
@@ -841,7 +840,7 @@ const ShuttleHint = styled.p`
   ${TextSansStyle}
   margin: 8px 0 0;
   color: ${T.inkMuted};
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.6;
 `;
 
@@ -918,15 +917,14 @@ const DetailRowWrap = styled.div<{ $last?: boolean }>`
   grid-template-columns: 48px 1fr;
   gap: 8px;
   align-items: baseline;
-  padding: 12px 0;
+  padding: 10px 0;
   border-bottom: ${({ $last }) => ($last ? 0 : `1px solid ${T.rule}`)};
 `;
 
 const DetailLabel = styled.div`
   color: ${T.accent};
   font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.18em;
+  font-size: 12px;
   line-height: 1.5;
   text-transform: uppercase;
 `;
@@ -938,7 +936,7 @@ const ShuttleNotesTitle = styled(DetailLabel)`
 const DetailValue = styled.div`
   ${TextSansStyle}
   color: ${T.ink};
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.65;
   white-space: pre-line;
 `;
@@ -1071,8 +1069,8 @@ const AccountList = styled.div`
 
 const AccountRow = styled.div`
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr) 36px;
-  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) 36px;
+  gap: 10px;
   align-items: center;
   padding: 12px 16px;
   border-top: 1px solid ${T.rule};
@@ -1080,6 +1078,13 @@ const AccountRow = styled.div`
   &:first-child {
     border-top: 0;
   }
+`;
+
+const AccountInfo = styled.div`
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
 `;
 
 const AccountName = styled.span`
@@ -1094,7 +1099,7 @@ const AccountName = styled.span`
 const AccountNumber = styled.span`
   color: ${T.inkSoft};
   font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 0.02em;
   line-height: 1.5;
   white-space: normal;
@@ -1139,8 +1144,10 @@ const AccountPanel = ({ accounts }: { accounts: AccountItem[] }) => (
 
       return (
         <AccountRow key={copyText}>
-          <AccountName>{account.name}</AccountName>
-          <AccountNumber>{account.account}</AccountNumber>
+          <AccountInfo>
+            <AccountName>{account.name}</AccountName>
+            <AccountNumber>{account.account}</AccountNumber>
+          </AccountInfo>
           <AccountCopyButton text={copyText} />
         </AccountRow>
       );
@@ -1164,10 +1171,7 @@ const AccountReveal = ({
         aria-expanded={isOpen}
         onClick={() => setOpen((open) => !open)}
       >
-        <span>
-          <Kicker>{title.replace(" 계좌번호", "")}</Kicker>
-          <span>계좌 안내</span>
-        </span>
+        <span>{title.replace(" 계좌번호", "")} 계좌 안내</span>
         <AccountRevealArrow $open={isOpen} />
       </AccountRevealButton>
       {isOpen && <AccountPanel accounts={accounts} />}
@@ -1235,7 +1239,7 @@ const ShuttleCard = ({
           {shuttle.departPlace}
         </DetailRow>
       </ShuttleSummary>
-      <ShuttleHint>RSVP 시 탑승 여부를 함께 전달해 주세요.</ShuttleHint>
+      <ShuttleHint>참석 의사 전달시 탑승 여부를 함께 전달해 주세요.</ShuttleHint>
     </div>
   </TransportCard>
 );
@@ -1327,7 +1331,7 @@ const WriteButton = styled.button<{ $visible: boolean }>`
   min-height: 48px;
   padding: 14px 18px;
   border: 1px solid ${T.rule};
-  border-radius: 6px;
+  border-radius: 9999px;
 
   color: ${T.ink};
   font-size: 14px;
@@ -1713,7 +1717,6 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
   };
   const isInvitationVersion = variant !== "nomap";
   const orderedSides = getOrderedInvitationSides(primarySide);
-  const parentSides: InvitationSide[] = ["groom", "bride"];
   const greetingParagraphs = c.greeting.content;
   const galleryPhoto = c.photos?.[0];
   const sideContent = {
@@ -1757,7 +1760,7 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
         </GreetingP>
       ))}
       <ParentGrid>
-        {parentSides.map((side, index) => {
+        {orderedSides.map((side, index) => {
           const item = sideContent[side];
           const family = getSideFamily(c, side);
 
@@ -1859,7 +1862,9 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
                 <TransportCard key={section.title}>
                   <TransportIcon>{section.icon}</TransportIcon>
                   <div>
-                    <TransportTitle>{section.title}</TransportTitle>
+                    <TransportTitleRow>
+                      <TransportTitle>{section.title}</TransportTitle>
+                    </TransportTitleRow>
                     <TransportText>{section.content}</TransportText>
                   </div>
                 </TransportCard>
@@ -1872,7 +1877,9 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
                 <TransportCard key={section.title}>
                   <TransportIcon>{section.icon}</TransportIcon>
                   <div>
+                  <TransportTitleRow>
                     <TransportTitle>{section.title}</TransportTitle>
+                    </TransportTitleRow>
                     <TransportText>{section.content}</TransportText>
                   </div>
                 </TransportCard>
@@ -1981,7 +1988,7 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
       )}
       {showWriteTalkModal && (
         <Modal handleClose={handleWriteTalkModalClose}>
-          <WriteTalk onWrite={handleWriteTalk} />
+          <WriteTalk onWrite={handleWriteTalk} primarySide={primarySide} />
         </Modal>
       )}
       {showBrideContactModal && (

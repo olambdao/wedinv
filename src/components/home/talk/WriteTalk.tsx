@@ -2,6 +2,10 @@ import randomInt from "@/common/utils/randomInt";
 import { FormEventHandler, useEffect, useRef, useState } from "react";
 
 import { Party, PostTalkRequest, PostTalkResponse } from "@/talk/types";
+import {
+  getOrderedInvitationSides,
+  InvitationSide,
+} from "@/variant";
 import { Kicker } from "../styles";
 import {
   AuthorField,
@@ -31,8 +35,19 @@ import {
   Wrap,
 } from "./styles";
 
-type WriteTalkProps = { onWrite: (id: string) => void };
+type WriteTalkProps = {
+  onWrite: (id: string) => void;
+  primarySide: InvitationSide;
+};
 type Step = 1 | 2 | 3;
+
+const sideToParty = (side: InvitationSide): Party =>
+  side === "groom" ? "GROOM" : "BRIDE";
+
+const partyLabels: Record<Party, string> = {
+  GROOM: "신랑측",
+  BRIDE: "신부측",
+};
 
 const getStepTitle = (step: Step) => {
   if (step === 1) return "어느 쪽으로 보내시나요?";
@@ -40,11 +55,11 @@ const getStepTitle = (step: Step) => {
   return "암호를 설정해주세요";
 };
 
-const WriteTalk = ({ onWrite }: WriteTalkProps) => {
+const WriteTalk = ({ onWrite, primarySide }: WriteTalkProps) => {
   const [isLoading, setLoading] = useState(false);
 
   const [step, setStep] = useState<Step>(1);
-  const [party, setParty] = useState<Party>();
+  const [party, setParty] = useState<Party>(() => sideToParty(primarySide));
   const [colorIndex, setColorIndex] = useState(
     randomInt(0, TalkHeadColors.length - 1)
   );
@@ -57,6 +72,7 @@ const WriteTalk = ({ onWrite }: WriteTalkProps) => {
 
   const color = TalkHeadColors[colorIndex % TalkHeadColors.length];
   const isRight = party === "BRIDE";
+  const orderedParties = getOrderedInvitationSides(primarySide).map(sideToParty);
 
   const authorErrMsg =
     author.length === 0
@@ -155,20 +171,16 @@ const WriteTalk = ({ onWrite }: WriteTalkProps) => {
         <ModalBody>
           {step === 1 && (
             <PartyRow>
-              <PartyButton
-                type="button"
-                $selected={party === "GROOM"}
-                onClick={() => setParty("GROOM")}
-              >
-                신랑측
-              </PartyButton>
-              <PartyButton
-                type="button"
-                $selected={party === "BRIDE"}
-                onClick={() => setParty("BRIDE")}
-              >
-                신부측
-              </PartyButton>
+              {orderedParties.map((partyOption) => (
+                <PartyButton
+                  key={partyOption}
+                  type="button"
+                  $selected={party === partyOption}
+                  onClick={() => setParty(partyOption)}
+                >
+                  {partyLabels[partyOption]}
+                </PartyButton>
+              ))}
             </PartyRow>
           )}
 
