@@ -3,23 +3,24 @@ import styled from "styled-components";
 const ModalWrap = styled.div`
   display: flex;
   position: fixed;
-  z-index: 1;
+  z-index: 100;
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
 
   flex-direction: column;
+  align-items: center;
   justify-content: center;
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgba(0, 0, 0, 0.8); /* Black w/ opacity */
-  backdrop-filter: blur(10px);
+  overflow: auto;
+  padding: 20px;
+  background: rgba(20, 17, 13, 0.45);
 `;
 
 const ModalContent = styled.div`
   position: relative;
   width: 100%;
-  max-width: 600px;
+  max-width: 400px;
   margin: 0 auto;
 `;
 

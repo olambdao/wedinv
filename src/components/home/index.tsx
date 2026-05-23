@@ -4,8 +4,6 @@ import {
   Calendar,
   Car,
   Copy,
-  EmojiLookLeft,
-  EmojiLookRight,
   MessageText,
   Phone,
   Pin,
@@ -32,9 +30,8 @@ import {
 } from "@/variant";
 import {
   BubbleAlignment,
-  BoxShadowStyle,
-  BubbleHeadStyle,
   Btn,
+  FM,
   Kicker,
   Main,
   SectionHeader,
@@ -43,7 +40,6 @@ import {
   TextSansStyle,
   TextSerifStyle,
 } from "./styles";
-import SingleMap from "./SingleMap";
 import EditTalk from "./talk/EditTalk";
 import WriteTalk from "./talk/WriteTalk";
 
@@ -73,8 +69,8 @@ const HeroTree = styled.img`
   width: 62%;
   max-width: 240px;
   height: auto;
-  object-fit: contain;
-  object-position: top center;
+  object-fit: cover;
+  object-position: center 46%;
   margin: 28px auto 8px;
   opacity: 0.95;
 `;
@@ -151,7 +147,7 @@ const HeroKicker = styled(Kicker)`
 const getSideFullName = (content: Content, side: InvitationSide) =>
   side === "groom" ? content.groomFullName : content.brideFullName;
 
-const getSideFamilyLine = (content: Content, side: InvitationSide) =>
+const getSideFamily = (content: Content, side: InvitationSide) =>
   side === "groom" ? content.greeting.groomFamily : content.greeting.brideFamily;
 
 const getPartyInvitationSide = (party: Party): InvitationSide =>
@@ -162,9 +158,6 @@ const getPartyAlignment = (
   primarySide: InvitationSide
 ): BubbleAlignment =>
   getPartyInvitationSide(party) === primarySide ? "left" : "right";
-
-const getAlignmentIcon = (alignment: BubbleAlignment) =>
-  alignment === "right" ? <EmojiLookLeft /> : <EmojiLookRight />;
 
 const formatHeroDate = (start: string) => {
   const match = start.match(/^(\d{4})(\d{2})(\d{2})/);
@@ -197,6 +190,35 @@ const getCalendarUrl = (content: Content) => {
   });
 
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
+};
+
+const RSVP_DEADLINE = {
+  label: "06.13",
+  value: "2026-06-13T00:00:00+09:00",
+};
+
+const getKoreaDateStart = (date: Date) => {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const [year, month, day] = formatter.format(date).split("-");
+
+  return new Date(`${year}-${month}-${day}T00:00:00+09:00`);
+};
+
+const getRsvpMetaText = (now = new Date()) => {
+  const today = getKoreaDateStart(now);
+  const deadline = new Date(RSVP_DEADLINE.value);
+  const dday = Math.ceil(
+    (deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  );
+  const ddayText =
+    dday > 0 ? `D-${dday}` : dday === 0 ? "D-DAY" : `D+${Math.abs(dday)}`;
+
+  return `— by ${RSVP_DEADLINE.label} · ${ddayText} —`;
 };
 
 const InvitationHero = ({
@@ -232,7 +254,8 @@ const InvitationHero = ({
         </HeroDateWrap>
 
         <HeroEventDetail>
-          {getEventTimeText(c.datetime)}
+          {/* {getEventTimeText(c.datetime)} */}
+          {c.datetime}
           <br />
           {c.venue.desc}
         </HeroEventDetail>
@@ -332,10 +355,9 @@ const ParentCard = styled.div<{ $withBorder: boolean }>`
   padding: 4px 12px;
   border-left: ${({ $withBorder }) =>
     $withBorder ? `1px solid ${T.rule}` : 0};
-  color: ${T.inkSoft};
   font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
-  font-size: 13.5px;
   line-height: 1.9;
+  text-align: center;
 `;
 
 const ParentSide = styled(Kicker)`
@@ -343,117 +365,154 @@ const ParentSide = styled(Kicker)`
   color: ${T.inkMuted};
 `;
 
+const ParentNames = styled.div`
+  color: ${T.ink};
+  font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
+  font-size: 17px;
+  letter-spacing: 0.04em;
+  line-height: 1.9;
+`;
+
 const ParentRole = styled.div`
   color: ${T.inkMuted};
-  font-size: 12px;
+  font-size: 13px;
+  line-height: 1.9;
 `;
 
 const ParentChildName = styled.div`
   margin-top: 4px;
   color: ${T.ink};
-  font-size: 18px;
-  letter-spacing: 0.06em;
+  font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
+  font-size: 20px;
+  letter-spacing: 0.08em;
+  line-height: 1.9;
+`;
+
+const ContactModalCard = styled.div`
+  width: 100%;
+  max-height: calc(100svh - 40px);
+  overflow: auto;
+  border: 1px solid ${T.rule};
+  border-radius: 10px;
+  background: ${T.bg};
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.18);
+`;
+
+const ContactModalHeader = styled.div`
+  padding: 24px 24px 0;
+  text-align: center;
+`;
+
+const ContactModalTitle = styled.h3`
+  ${TextSerifStyle}
+  margin: 8px 0 0;
+  color: ${T.ink};
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
 `;
 
 const ContactList = styled.div`
   ${TextSansStyle}
-  width: calc(100% - 40px);
-  max-width: 340px;
-  margin: 0 auto;
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: #f3f3f3;
+  overflow: hidden;
+  border: 1px solid ${T.rule};
+  border-radius: 6px;
+  background: ${T.paper};
   text-align: left;
 `;
 
 const ContactRow = styled.div`
-  display: grid;
-  grid-template-columns: 84px minmax(0, 1fr) auto;
-  gap: 10px;
-  align-items: center;
-  padding: 8px 0;
-  border-top: 1px solid #dddddd;
+  padding: 14px 16px;
+  border-top: 1px solid ${T.rule};
 
   &:first-child {
     border-top: 0;
   }
 `;
 
-const ContactText = styled.span`
-  color: #555;
-  font-size: 15px;
-  line-height: 1.5;
-  white-space: nowrap;
+const ContactRowHeader = styled.div`
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 10px;
+`;
+
+const ContactLabel = styled(Kicker)`
+  color: ${T.inkMuted};
+`;
+
+const ContactName = styled.div`
+  ${TextSerifStyle}
+  color: ${T.ink};
+  font-size: 14.5px;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+`;
+
+const ContactPhone = styled.div`
+  margin-left: auto;
+  color: ${T.inkSoft};
+  font-family: ${FM};
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
 `;
 
 const ContactActions = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 6px;
 
   a {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 16px;
-    background: #ffffff;
+    gap: 6px;
+    padding: 8px 10px;
+    border: 1px solid ${T.rule};
+    border-radius: 4px;
+    color: ${T.ink};
+    background: ${T.bg};
+    font-size: 12.5px;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+    text-decoration: none;
+
+    &&,
+    &&:link,
+    &&:visited,
+    &&:hover {
+      color: ${T.ink};
+      text-decoration: none;
+    }
   }
 
   svg {
-    width: 18px;
-    height: 18px;
-    color: #777;
+    width: 14px;
+    height: 14px;
+    color: ${T.accent};
   }
 `;
 
-const ContactName = styled(ContactText)`
-  font-weight: 700;
+const ContactModalBody = styled.div`
+  padding: 20px 24px 8px;
 `;
 
-const ContactPhone = styled(ContactText)``;
-
-const ContactModalCard = styled.div`
-  width: calc(100% - 40px);
-  max-width: 360px;
-  margin: 0 auto;
-  padding: 22px 0 18px;
-  border-radius: 12px;
-  background: #F5F1EA;
-  text-align: center;
-`;
-
-const ContactModalTitle = styled.h3`
-  margin: 0 0 16px;
-  color: #333;
-  font-family: "Noto Serif KR", serif;
-  font-size: 20px;
-  font-weight: 500;
-`;
-
-const ContactModalClose = styled.button`
-  ${TextSansStyle}
-  display: inline-block;
-  padding: 7px 16px;
-  border: 0;
-  border-radius: 8px;
-  margin-top: 16px;
-  color: #666;
-  font-size: 15px;
-  font-weight: bold;
-  background: #f3f3f3;
+const ContactModalFooter = styled.div`
+  padding: 12px 24px 24px;
 `;
 
 const brideContacts = [
-  { label: "신부", phone: "010-3934-5499" },
-  { label: "신부 아버님", phone: "010-3156-5286" },
-  { label: "신부 어머님", phone: "010-8436-5286" },
+  { label: "신부", name: "김민지", phone: "010-3934-5499" },
+  { label: "신부 아버님", name: "김대래", phone: "010-3156-5286" },
+  { label: "신부 어머님", name: "정혜욱", phone: "010-8436-5286" },
 ];
 
 const groomContacts = [
-  { label: "신랑", phone: "010-4721-0265" },
-  { label: "신랑 아버님", phone: "010-3592-9109" },
-  { label: "신랑 어머님", phone: "010-3666-9109" },
+  { label: "신랑", name: "임석의", phone: "010-4721-0265" },
+  { label: "신랑 아버님", name: "임영희", phone: "010-3592-9109" },
+  { label: "신랑 어머님", name: "최은희", phone: "010-3666-9109" },
 ];
 
 type ContactItem = (typeof brideContacts)[number];
@@ -465,14 +524,22 @@ const ContactPanel = ({ contacts }: { contacts: ContactItem[] }) => (
 
       return (
         <ContactRow key={contact.phone}>
-          <ContactName>{contact.label}</ContactName>
-          <ContactPhone>{contact.phone}</ContactPhone>
+          <ContactRowHeader>
+            <ContactLabel>{contact.label}</ContactLabel>
+            <ContactName>{contact.name}</ContactName>
+            <ContactPhone>{contact.phone}</ContactPhone>
+          </ContactRowHeader>
           <ContactActions>
-            <a href={`tel:${phoneNumber}`} aria-label={`${contact.label} 전화`}>
+            <a href={`tel:${phoneNumber}`} aria-label={`${contact.label} 전화걸기`}>
               <Phone />
+              전화 걸기
             </a>
-            <a href={`sms:${phoneNumber}`} aria-label={`${contact.label} 문자`}>
+            <a
+              href={`sms:${phoneNumber}`}
+              aria-label={`${contact.label} 메시지 보내기`}
+            >
               <MessageText />
+              메시지 보내기
             </a>
           </ContactActions>
         </ContactRow>
@@ -491,27 +558,48 @@ const ContactModal = ({
   onClose: () => void;
 }) => (
   <ContactModalCard>
-    <ContactModalTitle>{title}</ContactModalTitle>
-    <ContactPanel contacts={contacts} />
-    <ContactModalClose type="button" onClick={onClose}>
-      닫기
-    </ContactModalClose>
+    <ContactModalHeader>
+      <Kicker>Contact · 마음 전하는 말</Kicker>
+      <ContactModalTitle>{title}</ContactModalTitle>
+    </ContactModalHeader>
+    <ContactModalBody>
+      <ContactPanel contacts={contacts} />
+    </ContactModalBody>
+    <ContactModalFooter>
+      <Btn type="button" $variant="secondary" $full onClick={onClose}>
+        닫기
+      </Btn>
+    </ContactModalFooter>
   </ContactModalCard>
 );
 
-const parseFamilyLine = (line: string) => {
-  const match = line.match(/^(.+?)의\s+(.+)\s+(\S+)$/);
+const GalleryWrap = styled.section`
+  padding-top: 72px;
+`;
 
-  if (!match) {
-    return { parents: line, role: "", name: "" };
-  }
+const GalleryContent = styled.div`
+  padding: 0 24px;
+`;
 
-  return {
-    parents: match[1],
-    role: `의 ${match[2]}`,
-    name: match[3],
-  };
-};
+const GalleryPhoto = styled.img<{ $objectPosition?: string }>`
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border: 1px solid ${T.rule};
+  object-fit: cover;
+  object-position: ${({ $objectPosition }) => $objectPosition ?? "center"};
+`;
+
+const GalleryCount = styled.div`
+  margin-top: 14px;
+  color: ${T.inkMuted};
+  font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  line-height: 1.5;
+  text-align: center;
+  text-transform: uppercase;
+`;
 
 const DirectionsWrap = styled.section`
   padding-top: 72px;
@@ -521,11 +609,8 @@ const DirectionsContent = styled.div`
   padding: 0 24px;
 `;
 
-const VenueCard = styled.div`
-  margin-bottom: 16px;
-  padding: 18px;
-  border: 1px solid ${T.rule};
-  background: ${T.paper};
+const VenueBlock = styled.div`
+  margin-bottom: 20px;
   text-align: center;
 `;
 
@@ -556,6 +641,16 @@ const MapButtonRow = styled.div`
 
 const MapFrame = styled.div`
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const DirectionImage = styled.img`
+  display: block;
+  width: 100%;
+  border: 1px solid ${T.rule};
+  border-radius: 4px;
 `;
 
 const TransportList = styled.div`
@@ -652,11 +747,9 @@ const ShuttleHint = styled.p`
 `;
 
 const ShuttleModalCard = styled.div`
-  width: calc(100% - 40px);
-  max-width: 360px;
+  width: 100%;
   max-height: calc(100svh - 40px);
   overflow: auto;
-  margin: 0 auto;
   border: 1px solid ${T.rule};
   border-radius: 10px;
   background: ${T.bg};
@@ -697,10 +790,34 @@ const ShuttleDetailBox = styled.div`
   background: ${T.paper};
 `;
 
+const ShuttleNotesSection = styled.div`
+  margin-top: 14px;
+`;
+
+const ShuttleNotesList = styled.ul`
+  ${TextSansStyle}
+  margin: 0;
+  padding-left: 18px;
+  color: ${T.inkSoft};
+  font-size: 13px;
+  line-height: 1.7;
+  list-style: disc outside;
+
+  li {
+    display: list-item;
+    margin: 2px 0;
+  }
+
+  li::marker {
+    color: ${T.accent};
+    font-size: 0.8em;
+  }
+`;
+
 const DetailRowWrap = styled.div<{ $last?: boolean }>`
   display: grid;
-  grid-template-columns: 76px 1fr;
-  gap: 12px;
+  grid-template-columns: 48px 1fr;
+  gap: 8px;
   align-items: baseline;
   padding: 12px 0;
   border-bottom: ${({ $last }) => ($last ? 0 : `1px solid ${T.rule}`)};
@@ -715,12 +832,22 @@ const DetailLabel = styled.div`
   text-transform: uppercase;
 `;
 
+const ShuttleNotesTitle = styled(DetailLabel)`
+  margin-bottom: 8px;
+`;
+
 const DetailValue = styled.div`
   ${TextSansStyle}
   color: ${T.ink};
   font-size: 13.5px;
   line-height: 1.65;
   white-space: pre-line;
+`;
+
+const ReturnTimes = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 `;
 
 const ShuttlePhoneLink = styled.a`
@@ -793,14 +920,16 @@ const CopyTextButton = styled.button`
   width: 32px;
   height: 32px;
   padding: 0;
-  border: none;
-  border-radius: 16px;
-  background: #ffffff;
+  border: 1px solid ${T.rule};
+  border-radius: 4px;
+  color: ${T.accent};
+  background: ${T.bg};
+  cursor: pointer;
 
   svg {
-    width: 18px;
-    height: 18px;
-    color: #999;
+    width: 16px;
+    height: 16px;
+    color: currentColor;
   }
 `;
 
@@ -843,8 +972,8 @@ const AccountList = styled.div`
 
 const AccountRow = styled.div`
   display: grid;
-  grid-template-columns: 60px minmax(0, 1fr) 36px;
-  gap: 10px;
+  grid-template-columns: 48px minmax(0, 1fr) 36px;
+  gap: 8px;
   align-items: center;
   padding: 12px 16px;
   border-top: 1px solid ${T.rule};
@@ -854,18 +983,21 @@ const AccountRow = styled.div`
   }
 `;
 
-const AccountName = styled(ContactText)`
+const AccountName = styled.span`
   color: ${T.ink};
   font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
   font-size: 14px;
   font-weight: 400;
+  line-height: 1.5;
+  white-space: nowrap;
 `;
 
-const AccountNumber = styled(ContactText)`
+const AccountNumber = styled.span`
   color: ${T.inkSoft};
   font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   font-size: 12px;
   letter-spacing: 0.02em;
+  line-height: 1.5;
   white-space: normal;
   word-break: keep-all;
   overflow-wrap: anywhere;
@@ -891,7 +1023,11 @@ const AccountCopyButton = ({ text }: { text: string }) => {
   };
 
   return (
-    <CopyTextButton type="button" onClick={handleCopyText} aria-label="복사">
+    <CopyTextButton
+      type="button"
+      onClick={handleCopyText}
+      aria-label="계좌 복사"
+    >
       <Copy />
     </CopyTextButton>
   );
@@ -948,25 +1084,17 @@ type TransportSection = {
 const transportSections: TransportSection[] = [
   {
     title: "자가용",
-    content: "영동고속 양지 IC 또는 용인 IC에서 약 10분.\n예식장 내 무료 주차 가능합니다.",
+    content: "영동고속 양지 IC 또는 용인 IC에서 약 10분\n예식장 내 무료 주차 가능합니다",
     icon: <Car />,
   },
   {
     title: "대중교통",
-    content: "용인공용버스터미널 하차 → 택시로 약 15분.",
+    content: "용인공용버스터미널 하차 → 택시로 약 15분",
     icon: <Train />,
   },
 ];
 
-const shuttle = {
-  departTime: "2026. 06. 27 (토) 오전 10:30",
-  departPlace: "서울 강남역 6번 출구 앞",
-  returnTime: "2026. 06. 27 (토) 오후 4:00 (예식 종료 후 출발)",
-  notes:
-    "· 좌석은 RSVP 접수 순으로 배정됩니다.\n· 정원 초과 시 추가 차량을 운영할 수 있습니다.\n· 출발 30분 전 도착 부탁드립니다.",
-  contactName: "신랑측",
-  contactPhone: groomContacts[0].phone,
-};
+type ShuttleInfo = Content["shuttle"];
 
 const DetailRow = ({
   children,
@@ -983,7 +1111,13 @@ const DetailRow = ({
   </DetailRowWrap>
 );
 
-const ShuttleCard = ({ onOpen }: { onOpen: () => void }) => (
+const ShuttleCard = ({
+  onOpen,
+  shuttle,
+}: {
+  onOpen: () => void;
+  shuttle: ShuttleInfo;
+}) => (
   <TransportCard>
     <TransportIcon>
       <Bus />
@@ -1007,31 +1141,53 @@ const ShuttleCard = ({ onOpen }: { onOpen: () => void }) => (
   </TransportCard>
 );
 
-const ShuttleModal = ({ onClose }: { onClose: () => void }) => (
+const ShuttleModal = ({
+  onClose,
+  shuttle,
+}: {
+  onClose: () => void;
+  shuttle: ShuttleInfo;
+}) => (
   <ShuttleModalCard>
     <ShuttleModalHeader>
-      <Kicker>Shuttle bus · 전세버스 안내</Kicker>
-      <ShuttleModalTitle>서울 출발 전세버스</ShuttleModalTitle>
+      <ShuttleModalTitle>전세버스 안내</ShuttleModalTitle>
       <ShuttleModalSub>
-        RSVP 시 탑승 여부를 함께 전달해 주세요.
+        참석 의사 전달시 탑승 여부를 함께 전달해 주세요.
       </ShuttleModalSub>
     </ShuttleModalHeader>
     <ShuttleModalBody>
       <ShuttleDetailBox>
         <DetailRow label="출발일시">{shuttle.departTime}</DetailRow>
         <DetailRow label="탑승장소">{shuttle.departPlace}</DetailRow>
-        <DetailRow label="복귀일시">{shuttle.returnTime}</DetailRow>
-        <DetailRow label="추가 안내">{shuttle.notes}</DetailRow>
-        <DetailRow label="탑승 문의" last>
+        <DetailRow label="복귀시각">
+          <ReturnTimes>
+            {shuttle.returnTimes.map((returnTime) => (
+              <div key={returnTime}>{returnTime}</div>
+            ))}
+          </ReturnTimes>
+        </DetailRow>
+        <DetailRow label="탑승문의" last>
           {shuttle.contactName}
           <div>
-            <ShuttlePhoneLink href={`tel:${shuttle.contactPhone.replaceAll("-", "")}`}>
+            <ShuttlePhoneLink
+              href={`tel:${shuttle.contactPhone.replaceAll("-", "")}`}
+            >
               <Phone />
               {shuttle.contactPhone}
             </ShuttlePhoneLink>
           </div>
         </DetailRow>
       </ShuttleDetailBox>
+      {shuttle.notes.length > 0 && (
+        <ShuttleNotesSection>
+          <ShuttleNotesTitle>추가 안내</ShuttleNotesTitle>
+          <ShuttleNotesList>
+            {shuttle.notes.map((note) => (
+              <li key={note}>{note}</li>
+            ))}
+          </ShuttleNotesList>
+        </ShuttleNotesSection>
+      )}
     </ShuttleModalBody>
     <ShuttleModalFooter>
       <Btn type="button" $variant="primary" $full onClick={onClose}>
@@ -1043,7 +1199,6 @@ const ShuttleModal = ({ onClose }: { onClose: () => void }) => (
 
 const WriteSectionSubHeader = styled.div`
   padding: 0 20px;
-  margin-top: -68px;
   color: #666;
   p:first-child {
     float: left;
@@ -1058,7 +1213,7 @@ const WriteButton = styled.button<{ $visible: boolean }>`
   ${({ $visible }) =>
     $visible
       ? css`
-          bottom: 45px;
+          bottom: calc(18px + env(safe-area-inset-bottom));
         `
       : css`
           bottom: -100px;
@@ -1080,8 +1235,8 @@ const WriteButton = styled.button<{ $visible: boolean }>`
   font-weight: 500;
   letter-spacing: 0.02em;
   background: rgba(251, 248, 241, 0.96);
-
-  ${BoxShadowStyle}
+  box-shadow: 0 10px 24px rgba(42, 38, 32, 0.1),
+    0 2px 8px rgba(42, 38, 32, 0.06);
 
   transition: bottom 0.5s cubic-bezier(0.68, -0.6, 0.32, 1.6);
 `;
@@ -1098,80 +1253,84 @@ const WriteButtonTrigger = styled.div`
   height: 100%;
 `;
 
+const TalkAvatar = styled.div<{ $color: string }>`
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+  background: ${({ $color }) => $color};
+  box-shadow: inset 0 0 0 1px rgba(42, 38, 32, 0.06);
+`;
+
 const TalkBubbleWrap = styled.div<{
-  $party: Party;
-  $color: string;
   $selected: boolean;
-  $primarySide: InvitationSide;
+  $alignment: BubbleAlignment;
 }>`
   ${TextSansStyle}
-  margin-bottom: 10px;
+  display: flex;
+  flex-direction: ${({ $alignment }) =>
+    $alignment === "right" ? "row-reverse" : "row"};
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 14px;
+
   &:last-child {
     margin-bottom: 0;
   }
-  svg {
-    ${({ $party, $color, $primarySide }) =>
-      BubbleHeadStyle($party, $color, getPartyAlignment($party, $primarySide))}
-  }
-  > div {
-    ${({ $party, $primarySide }) =>
-      getPartyAlignment($party, $primarySide) === "right"
-        ? css`
-            margin-right: 44px;
-            text-align: right;
-          `
-        : css`
-            margin-left: 44px;
-            text-align: left;
-          `}
-    line-height: 1.3;
-    div.bubble-info-wrap {
-      display: flex;
-      ${({ $party, $primarySide }) =>
-        getPartyAlignment($party, $primarySide) === "right"
-          ? css`
-              flex-direction: row-reverse;
-            `
-          : css`
-              flex-direction: row;
-            `}
 
+  > div {
+    max-width: 78%;
+    min-width: 0;
+    text-align: ${({ $alignment }) =>
+      $alignment === "right" ? "right" : "left"};
+    line-height: 1.55;
+
+    .talk-meta {
+      margin-bottom: 4px;
+      color: ${T.inkMuted};
+      font-size: 11.5px;
+      letter-spacing: 0.04em;
+      line-height: 1.45;
+    }
+
+    div.bubble-info-wrap {
       p {
-        white-space: pre-wrap;
-        text-align: left;
-        word-break: break-all;
-        overflow-wrap: break-word;
         display: inline-block;
-        padding: 8px 12px;
-        margin: 4px 0 0 0;
-        ${({ $party, $primarySide }) =>
-          getPartyAlignment($party, $primarySide) === "right"
+        max-width: 100%;
+        margin: 0;
+        padding: 10px 14px;
+        border: 1px solid ${T.rule};
+        ${({ $alignment }) =>
+          $alignment === "right"
             ? css`
-                border-radius: 20px 4px 20px 20px;
-                margin-left: 3px;
+                border-radius: 12px 4px 12px 12px;
               `
             : css`
-                border-radius: 4px 20px 20px 20px;
-                margin-right: 3px;
+                border-radius: 4px 12px 12px 12px;
               `}
-        background: #eee;
+        color: ${T.ink};
+        background: ${T.paper};
+        font-size: 13.5px;
+        line-height: 1.55;
+        text-align: left;
+        white-space: pre-wrap;
+        word-break: break-all;
+        overflow-wrap: break-word;
+
         ${({ $selected }) =>
           $selected &&
           css`
-            background: #ddd;
+            border-color: rgba(95, 102, 84, 0.34);
+            background: ${T.bgSoft};
           `}
       }
-      small {
-        align-self: flex-end;
-        flex-shrink: 0;
-        color: #999;
-        font-size: 13px;
-      }
     }
+
     .edit {
-      font-size: 0.95em;
-      color: #999;
+      color: ${T.accent};
+      font-size: 11.5px;
       text-decoration: underline;
+      text-underline-offset: 2px;
     }
   }
 `;
@@ -1209,23 +1368,21 @@ const TalkBubble = ({
 
   return (
     <TalkBubbleWrap
-      $party={talk.party}
-      $color={talk.color}
       $selected={selected}
-      $primarySide={primarySide}
+      $alignment={alignment}
     >
-      {getAlignmentIcon(alignment)}
+      <TalkAvatar $color={talk.color} />
       <div onClick={handleBubbleOutsideClick}>
-        {selected && alignment === "right" && <>{editBtn} </>}
-        {talk.author}
-        {selected && alignment === "left" && <> {editBtn}</>}
+        <div className="talk-meta">
+          {selected && alignment === "right" && <>{editBtn} · </>}
+          {talk.author} ·{" "}
+          {!talk.published
+            ? "검수중"
+            : timeDiffFormat(new Date(talk.created))}
+          {selected && alignment === "left" && <> · {editBtn}</>}
+        </div>
         <div className="bubble-info-wrap">
           <p onClick={handleBubbleClick}>{talk.msg}</p>
-          <small>
-            {!talk.published
-              ? "검수중"
-              : timeDiffFormat(new Date(talk.created))}
-          </small>
         </div>
       </div>
     </TalkBubbleWrap>
@@ -1238,7 +1395,7 @@ const ThankYou = styled.div`
 `;
 
 const ClosingSection = styled.section`
-  padding: 88px 0 64px;
+  padding: 88px 0 calc(112px + env(safe-area-inset-bottom));
   text-align: center;
 `;
 
@@ -1332,6 +1489,9 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
   const [showShuttleModal, setShowShuttleModal] = useState(false);
   const [isWriteButtonShown, setWriteButtonShown] = useState(false);
   const [selectedTalkId, setSelectedTalkId] = useState<string>();
+  const [rsvpMetaText, setRsvpMetaText] = useState(
+    `— by ${RSVP_DEADLINE.label} —`
+  );
 
   const writeButtonTriggerRef = useRef<HTMLDivElement>(null);
 
@@ -1346,6 +1506,10 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
 
     return () => observer.disconnect();
   }, [writeButtonTriggerRef]);
+
+  useEffect(() => {
+    setRsvpMetaText(getRsvpMetaText());
+  }, []);
 
   const handleTalkBubbleClick = (id: string | undefined) =>
     setSelectedTalkId(id);
@@ -1385,7 +1549,9 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
   };
   const isInvitationVersion = variant !== "nomap";
   const orderedSides = getOrderedInvitationSides(primarySide);
+  const parentSides: InvitationSide[] = ["groom", "bride"];
   const greetingParagraphs = c.greeting.content;
+  const galleryPhoto = c.photos?.[0];
   const sideContent = {
     bride: {
       accountTitle: "신부측 계좌번호",
@@ -1427,15 +1593,15 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
         </GreetingP>
       ))}
       <ParentGrid>
-        {orderedSides.map((side, index) => {
+        {parentSides.map((side, index) => {
           const item = sideContent[side];
-          const family = parseFamilyLine(getSideFamilyLine(c, side));
+          const family = getSideFamily(c, side);
 
           return (
             <ParentCard key={side} $withBorder={index > 0}>
               <ParentSide>{item.parentLabel}</ParentSide>
-              <div>{family.parents}</div>
-              {family.role && <ParentRole>{family.role}</ParentRole>}
+              <ParentNames>{family.parents}</ParentNames>
+              {family.relation && <ParentRole>{family.relation}</ParentRole>}
               {family.name && <ParentChildName>{family.name}</ParentChildName>}
             </ParentCard>
           );
@@ -1460,11 +1626,27 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
           );
         })}
       </CallWrap>
+      {galleryPhoto && (
+        <GalleryWrap>
+          <SectionHeader
+            kicker="02 · Gallery"
+            title="우리, 함께한 시간"
+          />
+          <GalleryContent>
+            <GalleryPhoto
+              src={galleryPhoto.url}
+              alt="웨딩 사진"
+              $objectPosition={galleryPhoto.objectPosition}
+            />
+            <GalleryCount>— 1 photo —</GalleryCount>
+          </GalleryContent>
+        </GalleryWrap>
+      )}
       {isInvitationVersion && (
         <DirectionsWrap>
           <SectionHeader kicker="03 · Directions" title="오시는 길" />
           <DirectionsContent>
-            <VenueCard>
+            <VenueBlock>
               <VenueName>{c.venue.desc}</VenueName>
               <VenueAddress>{c.venue.address}</VenueAddress>
               <MapButtonRow>
@@ -1490,13 +1672,14 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
                 </Btn>
                 <Btn type="button" $variant="tertiary" onClick={handleCopyAddress}>
                   <Copy />
-                  주소 복사
+                  복사
                 </Btn>
               </MapButtonRow>
-            </VenueCard>
+            </VenueBlock>
 
             <MapFrame>
-              <SingleMap />
+              <DirectionImage src="/directions1.jpeg" alt="오시는 길 안내 1" />
+              <DirectionImage src="/directions2.jpeg" alt="오시는 길 안내 2" />
             </MapFrame>
 
             <TransportList>
@@ -1509,7 +1692,10 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
                   </div>
                 </TransportCard>
               ))}
-              <ShuttleCard onOpen={() => setShowShuttleModal(true)} />
+              <ShuttleCard
+                shuttle={c.shuttle}
+                onOpen={() => setShowShuttleModal(true)}
+              />
               {transportSections.slice(1).map((section) => (
                 <TransportCard key={section.title}>
                   <TransportIcon>{section.icon}</TransportIcon>
@@ -1527,7 +1713,7 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
         <SectionHeader
           kicker="04 · RSVP"
           title="참석 여부 전달"
-          sub={`귀한 마음으로 모실 수 있도록 부담 없이 알려주시면 정성껏 준비하겠습니다.`}
+          sub={`귀한 마음으로 모실 수 있도록 부담 없이 알려주시면\n정성껏 준비하겠습니다.`}
         />
         <RsvpContent>
           {c.rsvpFormUrl && (
@@ -1543,7 +1729,7 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
               참석 의사 전달하기
             </Btn>
           )}
-          <RsvpMeta>— by 06.13 —</RsvpMeta>
+          <RsvpMeta>{rsvpMetaText}</RsvpMeta>
         </RsvpContent>
       </RsvpWrap>
       <SectionHr />
@@ -1640,7 +1826,10 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
       )}
       {showShuttleModal && (
         <Modal handleClose={() => setShowShuttleModal(false)}>
-          <ShuttleModal onClose={() => setShowShuttleModal(false)} />
+          <ShuttleModal
+            shuttle={c.shuttle}
+            onClose={() => setShowShuttleModal(false)}
+          />
         </Modal>
       )}
       {showEditTalkModal && (

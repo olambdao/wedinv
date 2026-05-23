@@ -2,6 +2,12 @@ export type Content = ContentSpec & {
   photos?: { url: string; objectPosition?: string }[];
 };
 
+export type FamilyInfo = {
+  parents: string;
+  relation: string;
+  name: string;
+};
+
 export type ContentSpec = {
   // meta
   groomHtmlTitle: string;
@@ -23,6 +29,14 @@ export type ContentSpec = {
     kakaoMapUrl: string;
     naverMapUrl: string;
   };
+  shuttle: {
+    departTime: string;
+    departPlace: string;
+    returnTimes: string[];
+    notes: string[];
+    contactName: string;
+    contactPhone: string;
+  };
   rsvpFormUrl?: string;
   calendarEvent: {
     title: string;
@@ -35,8 +49,8 @@ export type ContentSpec = {
   greeting: {
     title: string;
     content: string[];
-    groomFamily: string;
-    brideFamily: string;
+    groomFamily: FamilyInfo;
+    brideFamily: FamilyInfo;
   };
   groomContact: string;
   brideContact: string;
@@ -65,6 +79,20 @@ const myContentSpec: ContentSpec = {
     kakaoMapUrl: "https://kko.to/Ru3Hv8h9Xs",
     naverMapUrl: "https://naver.me/GgWECISM",
   },
+  shuttle: {
+    departTime: "2026. 06. 27 (토) 오전 11:15",
+    departPlace: "서울 교대역 14번 출구 앞",
+    returnTimes: [
+      "14:30 출발\n→ 에버라인선 용인중앙시장역 행",
+      "16:00 출발\n→ 2•3호선 교대역 행",
+    ],
+    notes: [
+      "출발 10분 전 도착 부탁드립니다.",
+      "귀가 차량은 2회 운영됩니다.",
+    ],
+    contactName: "신랑측 박성혁",
+    contactPhone: "010-4800-3045",
+  },
   rsvpFormUrl: "https://forms.gle/zv89MsVR3hZoLN1VA",
   calendarEvent: {
     title: "임석의 ♡ 김민지 결혼식",
@@ -82,8 +110,16 @@ const myContentSpec: ContentSpec = {
         이제는 한 마음으로
         같은 생을 그려가려 합니다.`,
     ],
-    groomFamily: "임영희 · 최은희의 아들 석의",
-    brideFamily: "김대래 · 정혜욱의 딸 민지",
+    groomFamily: {
+      parents: "임영희 · 최은희",
+      relation: "의 아들",
+      name: "석의",
+    },
+    brideFamily: {
+      parents: "김대래 · 정혜욱",
+      relation: "의 딸",
+      name: "민지",
+    },
   },
   groomContact: "tel:01071056849",
   brideContact: "tel:01073692869",
@@ -94,9 +130,9 @@ const myContentSpec: ContentSpec = {
     { name: "최은희", account: "하나은행 407-910679-71307" },
   ],
   brideGive: [
-    { name: "김민지", account: "카카오뱅크 3333-01-9202-440" },
+    { name: "김민지", account: "카카오뱅크 3333-01-9202440" },
     { name: "김대래", account: "농협 924-1223-1741" },
-    { name: "정혜욱", account: "부산은행 078-010-224428" },
+    { name: "정혜욱", account: "부산은행 078-01-0224428" },
   ],
 };
 

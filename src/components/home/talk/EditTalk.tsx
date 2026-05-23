@@ -130,7 +130,7 @@ const WriteTalk = ({ talk, onEdit }: Props) => {
     <Wrap>
       <form onSubmit={handleSubmit}>
         <Header>
-          ✍️ <span>글 수정하기</span>
+          글 수정하기
         </Header>
         {isPasswordChecked && (
           <>
@@ -142,7 +142,7 @@ const WriteTalk = ({ talk, onEdit }: Props) => {
                 checked={party === "GROOM"}
                 onChange={(e) => setParty(e.target.value as Party)}
               />
-              <PartyLabel htmlFor="groom">🤵🏻‍♂️ 신랑측</PartyLabel>
+              <PartyLabel htmlFor="groom">신랑측</PartyLabel>
               <input
                 type="radio"
                 value="BRIDE"
@@ -150,7 +150,7 @@ const WriteTalk = ({ talk, onEdit }: Props) => {
                 checked={party === "BRIDE"}
                 onChange={(e) => setParty(e.target.value as Party)}
               />
-              <PartyLabel htmlFor="bride">👰🏻‍♀️ 신부측</PartyLabel>
+              <PartyLabel htmlFor="bride">신부측</PartyLabel>
             </PartyRow>
             <BubbleWrap party={party} color={color}>
               {party === "BRIDE" ? (

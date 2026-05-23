@@ -1,94 +1,118 @@
 import randomInt from "@/common/utils/randomInt";
-import { EmojiLookLeft, EmojiLookRight } from "iconoir-react";
-import {
-  FormEventHandler,
-  KeyboardEventHandler,
-  MouseEventHandler,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { FormEventHandler, useEffect, useRef, useState } from "react";
 
 import { Party, PostTalkRequest, PostTalkResponse } from "@/talk/types";
+import { Kicker } from "../styles";
 import {
-  AuthorInput,
-  BubbleWrap,
+  AuthorField,
+  ColorButton,
+  ComposerFields,
+  ComposerWrap,
+  ErrorText,
+  FieldMeta,
+  FooterButton,
   Header,
   LoadingOverlay,
-  MsgInput,
-  PartyLabel,
+  MessageField,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  OrnamentButton,
+  OrnamentRow,
+  PartyButton,
   PartyRow,
+  PasswordHelp,
   PasswordInput,
   PasswordWrap,
-  SubmitButton,
+  StepDot,
+  StepIndicator,
+  TALK_ORNAMENTS,
   TalkHeadColors,
   Wrap,
 } from "./styles";
 
 type WriteTalkProps = { onWrite: (id: string) => void };
+type Step = 1 | 2 | 3;
+
+const getStepTitle = (step: Step) => {
+  if (step === 1) return "어느 쪽으로 보내시나요?";
+  if (step === 2) return "메시지를 남겨주세요";
+  return "암호를 설정해주세요";
+};
 
 const WriteTalk = ({ onWrite }: WriteTalkProps) => {
   const [isLoading, setLoading] = useState(false);
 
+  const [step, setStep] = useState<Step>(1);
   const [party, setParty] = useState<Party>();
-  const [color, setColor] = useState(
-    TalkHeadColors[randomInt(0, TalkHeadColors.length - 1)]
+  const [colorIndex, setColorIndex] = useState(
+    randomInt(0, TalkHeadColors.length - 1)
   );
   const [author, setAuthor] = useState("");
   const [msg, setMsg] = useState("");
-  const [showStep3, setShowStep3] = useState(false);
   const [password, setPassword] = useState("");
+
+  const authorInputRef = useRef<HTMLInputElement>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+
+  const color = TalkHeadColors[colorIndex % TalkHeadColors.length];
+  const isRight = party === "BRIDE";
 
   const authorErrMsg =
     author.length === 0
-      ? "이름을 입력해주세요."
+      ? "이름을 입력해주세요"
       : author.length > 10
-      ? "이름이 너무 길어요."
+      ? "이름이 너무 길어요"
       : undefined;
   const msgErrMsg =
     msg.length === 0
-      ? "내용을 입력해주세요."
+      ? "내용을 입력해주세요"
       : msg.length < 5
-      ? "내용이 너무 짧아요 (5자 이상)"
+      ? "5자 이상 입력해주세요"
       : msg.length > 100
-      ? "내용이 너무 길어요 (100자 이하)"
+      ? "100자 이하로 입력해주세요"
       : undefined;
   const passwordErrMsg =
     password.length === 0
-      ? "패스워드를 입력해주세요."
+      ? "암호를 입력해주세요"
       : password.length < 4
-      ? "패스워드가 너무 짧아요 (4자 이상)"
+      ? "4자 이상 입력해주세요"
       : undefined;
 
   const step2ErrMsg = authorErrMsg ?? msgErrMsg;
   const step3ErrMsg = passwordErrMsg;
+  const nextDisabled =
+    (step === 1 && !party) ||
+    (step === 2 && !!step2ErrMsg) ||
+    (step === 3 && !!step3ErrMsg);
 
-  const handleHeadClick: MouseEventHandler<SVGElement> = () => {
-    const nextColor =
-      TalkHeadColors[
-        (TalkHeadColors.indexOf(color) + 1) % TalkHeadColors.length
-      ];
-    setColor(nextColor);
-  };
+  useEffect(() => {
+    if (step !== 2) return;
+    authorInputRef.current?.focus();
+  }, [step]);
 
-  const handleAuthorKeyDown: KeyboardEventHandler<HTMLDivElement> = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-    }
-  };
+  useEffect(() => {
+    if (step !== 3) return;
+    passwordInputRef.current?.focus();
+  }, [step]);
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
-    if (step2) {
-      if (step2ErrMsg) return;
-      setShowStep3(true);
+    if (step === 1) {
+      if (!party) return;
+      setStep(2);
       return;
     }
 
-    // step3
-    if (!party) return;
-    if (step3ErrMsg) return;
+    if (step === 2) {
+      if (step2ErrMsg) return;
+      setStep(3);
+      return;
+    }
+
+    if (!party || step3ErrMsg) return;
+
     try {
       setLoading(true);
 
@@ -107,102 +131,127 @@ const WriteTalk = ({ onWrite }: WriteTalkProps) => {
     }
   };
 
-  const step1 = !party;
-  const step2 = party && !showStep3;
-  const step3 = showStep3;
+  const handleBack = () => {
+    setStep((currentStep) => (currentStep === 3 ? 2 : 1));
+  };
 
-  const authorInputRef = useRef<HTMLDivElement>(null);
-  const passwordInputRef = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    if (!step2) return;
-    authorInputRef.current?.focus();
-  }, [step2]);
-  useEffect(() => {
-    if (!step3) return;
-    passwordInputRef.current?.focus();
-  }, [step3]);
+  const handleOrnamentClick = (ornament: string) => {
+    setMsg((currentMsg) => `${currentMsg}${ornament}`.slice(0, 100));
+  };
 
   return (
     <Wrap>
-      <Header>
-        😍 <span>나도 한마디</span>
-      </Header>
-
       <form onSubmit={handleSubmit}>
-        {(step1 || step2) && (
-          <PartyRow>
-            <input
-              type="radio"
-              value="GROOM"
-              id="groom"
-              checked={party === "GROOM"}
-              onChange={(e) => setParty(e.target.value as Party)}
-            />
-            <PartyLabel htmlFor="groom">🤵🏻‍♂️ 신랑측</PartyLabel>
-            <input
-              type="radio"
-              value="BRIDE"
-              id="bride"
-              checked={party === "BRIDE"}
-              onChange={(e) => setParty(e.target.value as Party)}
-            />
-            <PartyLabel htmlFor="bride">👰🏻‍♀️ 신부측</PartyLabel>
-          </PartyRow>
-        )}
+        <ModalHeader>
+          <Kicker>Guestbook · 한마디 남기기</Kicker>
+          <Header>{getStepTitle(step)}</Header>
+          <StepIndicator>
+            {[1, 2, 3].map((stepNumber) => (
+              <StepDot key={stepNumber} $active={stepNumber === step} />
+            ))}
+          </StepIndicator>
+        </ModalHeader>
 
-        {step2 && (
-          <>
-            <BubbleWrap party={party} color={color}>
-              {party === "BRIDE" ? (
-                <EmojiLookLeft onClick={handleHeadClick} />
-              ) : (
-                <EmojiLookRight onClick={handleHeadClick} />
-              )}
-              <div>
-                <AuthorInput
-                  contentEditable
+        <ModalBody>
+          {step === 1 && (
+            <PartyRow>
+              <PartyButton
+                type="button"
+                $selected={party === "GROOM"}
+                onClick={() => setParty("GROOM")}
+              >
+                신랑측
+              </PartyButton>
+              <PartyButton
+                type="button"
+                $selected={party === "BRIDE"}
+                onClick={() => setParty("BRIDE")}
+              >
+                신부측
+              </PartyButton>
+            </PartyRow>
+          )}
+
+          {step === 2 && (
+            <ComposerWrap $right={isRight}>
+              <ColorButton
+                type="button"
+                $color={color}
+                title="색상 변경"
+                onClick={() => setColorIndex((index) => index + 1)}
+              />
+              <ComposerFields $right={isRight}>
+                <AuthorField
                   ref={authorInputRef}
-                  party={party}
-                  onKeyDown={handleAuthorKeyDown}
-                  onInput={(e) => setAuthor(e.currentTarget.innerText)}
+                  $right={isRight}
+                  value={author}
+                  placeholder="이름"
+                  onChange={(e) => setAuthor(e.currentTarget.value)}
                 />
-                <br />
-                <MsgInput
-                  contentEditable
-                  party={party}
-                  onInput={(e) => setMsg(e.currentTarget.innerText)}
+                <MessageField
+                  $right={isRight}
+                  value={msg}
+                  placeholder="축하의 한마디를 남겨주세요."
+                  rows={4}
+                  maxLength={100}
+                  onChange={(e) => setMsg(e.currentTarget.value)}
                 />
-              </div>
-            </BubbleWrap>
-          </>
-        )}
+                <OrnamentRow $right={isRight}>
+                  {TALK_ORNAMENTS.map((ornament) => (
+                    <OrnamentButton
+                      key={ornament}
+                      type="button"
+                      aria-label={`오너먼트 ${ornament} 삽입`}
+                      onClick={() => handleOrnamentClick(ornament)}
+                    >
+                      {ornament}
+                    </OrnamentButton>
+                  ))}
+                </OrnamentRow>
+                <FieldMeta>
+                  <ErrorText $error={!!step2ErrMsg}>
+                    {step2ErrMsg || "동그라미를 탭하면 색이 바뀌어요"}
+                  </ErrorText>
+                  <span>{msg.length}/100</span>
+                </FieldMeta>
+              </ComposerFields>
+            </ComposerWrap>
+          )}
 
-        {step3 && (
-          <PasswordWrap>
-            <label htmlFor="password">작성하신 글의 암호를 입력해주세요.</label>
-            <PasswordInput
-              ref={passwordInputRef}
-              id="password"
-              type="password"
-              value={password}
-              onInput={(e) => setPassword(e.currentTarget.value)}
-            />
-          </PasswordWrap>
-        )}
-        {step2 && (
-          <SubmitButton
+          {step === 3 && (
+            <PasswordWrap>
+              <label htmlFor="password">
+                나중에 글을 수정·삭제할 때 사용할 4자 이상의 암호를 입력해주세요.
+              </label>
+              <PasswordInput
+                ref={passwordInputRef}
+                id="password"
+                type="password"
+                value={password}
+                placeholder="••••"
+                onChange={(e) => setPassword(e.currentTarget.value)}
+              />
+              <PasswordHelp $error={!!step3ErrMsg}>
+                {step3ErrMsg || "minimum 4 characters"}
+              </PasswordHelp>
+            </PasswordWrap>
+          )}
+        </ModalBody>
+
+        <ModalFooter $single={step === 1}>
+          {step !== 1 && (
+            <FooterButton type="button" onClick={handleBack}>
+              이전
+            </FooterButton>
+          )}
+          <FooterButton
             type="submit"
-            value={step2ErrMsg || "글쓰기"}
-            isValid={!step2ErrMsg}
-          />
-        )}
-        {step3 && (
-          <SubmitButton
-            type="submit"
-            value={step3ErrMsg || "글쓰기"}
-            isValid={!step3ErrMsg}
-          />
-        )}
+            $variant="primary"
+            disabled={nextDisabled || isLoading}
+          >
+            {step === 3 ? "한마디 등록" : "다음"}
+          </FooterButton>
+        </ModalFooter>
       </form>
       {isLoading && <LoadingOverlay />}
     </Wrap>
