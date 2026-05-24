@@ -64,7 +64,7 @@ const HeroInner = styled.div`
   align-items: center;
   max-width: 400px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 16px;
   color: ${T.ink};
   text-align: center;
 `;
@@ -125,9 +125,10 @@ const HeroDate = styled.p`
 
 const HeroEventDetail = styled.p`
   margin: 0;
-  color: ${T.inkSoft};
+  color: ${T.ink};
   font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
-  font-size: 15px;
+  font-size: 16px;
+  font-weight: 600;
   line-height: 1.8;
   letter-spacing: 0.02em;
 `;
@@ -138,7 +139,7 @@ const HeroActionWrap = styled.div`
   flex-direction: column;
   gap: 10px;
   margin-top: 32px;
-  padding: 0 12px;
+  padding: 0 0px;
 `;
 
 const FirstSectionHeader = styled(SectionHeader)`
@@ -146,7 +147,7 @@ const FirstSectionHeader = styled(SectionHeader)`
 `;
 
 const HeroKicker = styled(Kicker)`
-  padding: 0 24px;
+  padding: 0 16px;
 `;
 
 const getSideFullName = (content: Content, side: InvitationSide) =>
@@ -324,7 +325,7 @@ const CallWrap = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin: 28px 24px 0;
+  margin: 28px 16px 0;
 `;
 
 const ContactTrigger = styled.button`
@@ -595,7 +596,7 @@ const GalleryWrap = styled.section`
 `;
 
 const GalleryContent = styled.div`
-  padding: 0 24px;
+  padding: 0 16px;
 `;
 
 const GalleryPhoto = styled.img<{ $objectPosition?: string }>`
@@ -623,7 +624,7 @@ const DirectionsWrap = styled.section`
 `;
 
 const DirectionsContent = styled.div`
-  padding: 0 24px;
+  padding: 0 16px;
 `;
 
 const VenueBlock = styled.div`
@@ -643,8 +644,9 @@ const VenueName = styled.p`
 const VenueAddress = styled.p`
   ${TextSansStyle}
   margin: 4px 0 14px;
-  color: ${T.inkMuted};
-  font-size: 12.5px;
+  color: ${T.inkSoft};
+  font-size: 14px;
+  font-weight: 400;
   letter-spacing: 0.02em;
   line-height: 1.6;
 `;
@@ -984,7 +986,7 @@ const RsvpContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 0 24px;
+  padding: 0 16px;
 `;
 
 const RsvpMeta = styled.p`
@@ -1002,7 +1004,7 @@ const GiveWrap = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 0 24px;
+  padding: 0 16px;
 `;
 
 const GiveGroup = styled.div`
@@ -1032,7 +1034,7 @@ const CopyTextButton = styled.button`
 `;
 
 const AccountRevealButton = styled.button`
-  ${TextSerifStyle}
+  ${TextSansStyle}
   display: flex;
   align-items: center;
   justify-content: space-between;

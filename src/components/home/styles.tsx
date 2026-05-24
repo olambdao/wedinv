@@ -118,7 +118,7 @@ export const SectionBreak = () => (
 
 export const SectionHeaderWrap = styled.div`
   margin-bottom: 28px;
-  padding: 0 24px;
+  padding: 0 16px;
   text-align: center;
 `;
 
