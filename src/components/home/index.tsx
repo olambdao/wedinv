@@ -249,6 +249,7 @@ const InvitationHero = ({
     getSideFullName(c, side)
   );
   const calendarUrl = getCalendarUrl(c);
+  const shouldShowHeroActions = isInvitationVersion && primarySide !== "groom";
 
   return (
     <Hero>
@@ -274,7 +275,7 @@ const InvitationHero = ({
           <br />
           {c.venue.desc}
         </HeroEventDetail>
-        {isInvitationVersion && (
+        {shouldShowHeroActions && (
           <HeroActionWrap>
             {c.rsvpFormUrl && (
               <Btn
@@ -980,11 +981,14 @@ const RsvpWrap = styled.section`
 `;
 
 const RsvpContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   padding: 0 24px;
 `;
 
 const RsvpMeta = styled.p`
-  margin: 14px 0 0;
+  margin: 4px 0 0;
   color: ${T.inkMuted};
   font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   font-size: 11px;
@@ -1729,6 +1733,8 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
       .then(() => alert("주소가 복사 되었습니다."));
   };
   const isInvitationVersion = variant !== "nomap";
+  const calendarUrl = getCalendarUrl(c);
+  const shouldShowRsvpCalendar = isInvitationVersion && primarySide === "groom";
   const orderedSides = getOrderedInvitationSides(primarySide);
   const greetingParagraphs = c.greeting.content;
   const galleryPhoto = c.photos?.[0];
@@ -1919,6 +1925,19 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
             >
               <ArrowRight />
               참석 의사 전달하기
+            </Btn>
+          )}
+          {shouldShowRsvpCalendar && (
+            <Btn
+              as="a"
+              href={calendarUrl}
+              target="_blank"
+              rel="noreferrer"
+              $variant="secondary"
+              $full
+            >
+              <Calendar />
+              캘린더에 추가
             </Btn>
           )}
           <RsvpMeta>{rsvpMetaText}</RsvpMeta>
