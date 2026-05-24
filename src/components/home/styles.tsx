@@ -10,7 +10,7 @@ export const T = {
   paper: "#FBF8F1",
   ink: "#2A2620",
   inkSoft: "#4F4A41",
-  inkMuted: "#8C8578",
+  inkMuted: "#5E5848",
   rule: "rgba(42,38,32,0.12)",
   accent: "#5F6654",
   accentSft: "#8E9582",
