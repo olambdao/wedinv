@@ -384,6 +384,7 @@ const ParentNames = styled.div`
   color: ${T.ink};
   font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
   font-size: 17px;
+  white-space: nowrap;
   letter-spacing: 0.04em;
   line-height: 1.9;
 `;
