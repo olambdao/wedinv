@@ -250,7 +250,7 @@ const InvitationHero = ({
     getSideFullName(c, side)
   );
   const calendarUrl = getCalendarUrl(c);
-  const shouldShowHeroActions = isInvitationVersion && primarySide !== "groom";
+  const shouldShowHeroActions = isInvitationVersion && false;
 
   return (
     <Hero>
@@ -1736,7 +1736,7 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
   };
   const isInvitationVersion = variant !== "nomap";
   const calendarUrl = getCalendarUrl(c);
-  const shouldShowRsvpCalendar = isInvitationVersion && primarySide === "groom";
+  const shouldShowRsvpCalendar = isInvitationVersion;
   const orderedSides = getOrderedInvitationSides(primarySide);
   const greetingParagraphs = c.greeting.content;
   const galleryPhoto = c.photos?.[0];
