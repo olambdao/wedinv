@@ -809,76 +809,12 @@ const TransportTitleRow = styled.div`
   margin-bottom: 8px;
 `;
 
-const ShuttleMoreButton = styled.button`
-  ${TextSansStyle}
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 0;
-  border: 0;
-  color: ${T.accent};
-  background: transparent;
-  font-size: 12px;
-  letter-spacing: 0.02em;
-  line-height: 1.4;
-  white-space: nowrap;
-
-  svg {
-    width: 14px;
-    height: 14px;
-  }
-`;
-
-const ShuttleSummary = styled.div`
-  padding: 4px 12px;
-  border: 1px solid ${T.rule};
-  border-radius: 6px;
-  background: ${T.paper};
-`;
-
 const ShuttleHint = styled.p`
   ${TextSansStyle}
-  margin: 8px 0 0;
+  margin: -2px 0 12px;
   color: ${T.inkMuted};
   font-size: 13px;
   line-height: 1.6;
-`;
-
-const ShuttleModalCard = styled.div`
-  width: 100%;
-  max-height: calc(100svh - 40px);
-  overflow: auto;
-  border: 1px solid ${T.rule};
-  border-radius: 10px;
-  background: ${T.bg};
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.18);
-`;
-
-const ShuttleModalHeader = styled.div`
-  padding: 24px 24px 8px;
-  text-align: center;
-`;
-
-const ShuttleModalTitle = styled.h3`
-  margin: 8px 0 0;
-  color: ${T.ink};
-  font-family: "Noto Serif KR", "Nanum Myeongjo", serif;
-  font-size: 22px;
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  line-height: 1.4;
-`;
-
-const ShuttleModalSub = styled.p`
-  ${TextSansStyle}
-  margin: 6px 0 0;
-  color: ${T.inkMuted};
-  font-size: 12.5px;
-  line-height: 1.6;
-`;
-
-const ShuttleModalBody = styled.div`
-  padding: 8px 24px 16px;
 `;
 
 const ShuttleDetailBox = styled.div`
@@ -972,10 +908,6 @@ const ShuttlePhoneLink = styled.a`
     width: 14px;
     height: 14px;
   }
-`;
-
-const ShuttleModalFooter = styled.div`
-  padding: 0 24px 24px;
 `;
 
 const RsvpWrap = styled.section`
@@ -1217,51 +1149,10 @@ const DetailRow = ({
   </DetailRowWrap>
 );
 
-const ShuttleCard = ({
-  onOpen,
-  shuttle,
-}: {
-  onOpen: () => void;
-  shuttle: ShuttleInfo;
-}) => (
-  <TransportCard>
-    <TransportIcon>
-      <Bus />
-    </TransportIcon>
+const ShuttleDetails = ({ shuttle }: { shuttle: ShuttleInfo }) => (
+  <>
+    <ShuttleHint>참석 의사 전달시 탑승 여부를 함께 전달해 주세요.</ShuttleHint>
     <div>
-      <TransportTitleRow>
-        <TransportTitle>전세버스</TransportTitle>
-        <ShuttleMoreButton type="button" onClick={onOpen}>
-          자세히 보기
-          <ArrowRight />
-        </ShuttleMoreButton>
-      </TransportTitleRow>
-      <ShuttleSummary>
-        <DetailRow label="출발일시">{shuttle.departTime}</DetailRow>
-        <DetailRow label="탑승장소" last>
-          {shuttle.departPlace}
-        </DetailRow>
-      </ShuttleSummary>
-      <ShuttleHint>참석 의사 전달시 탑승 여부를 함께 전달해 주세요.</ShuttleHint>
-    </div>
-  </TransportCard>
-);
-
-const ShuttleModal = ({
-  onClose,
-  shuttle,
-}: {
-  onClose: () => void;
-  shuttle: ShuttleInfo;
-}) => (
-  <ShuttleModalCard>
-    <ShuttleModalHeader>
-      <ShuttleModalTitle>전세버스 안내</ShuttleModalTitle>
-      <ShuttleModalSub>
-        참석 의사 전달시 탑승 여부를 함께 전달해 주세요.
-      </ShuttleModalSub>
-    </ShuttleModalHeader>
-    <ShuttleModalBody>
       <ShuttleDetailBox>
         <DetailRow label="출발일시">{shuttle.departTime}</DetailRow>
         <DetailRow label="탑승장소">{shuttle.departPlace}</DetailRow>
@@ -1294,13 +1185,22 @@ const ShuttleModal = ({
           </ShuttleNotesList>
         </ShuttleNotesSection>
       )}
-    </ShuttleModalBody>
-    <ShuttleModalFooter>
-      <Btn type="button" $variant="primary" $full onClick={onClose}>
-        닫기
-      </Btn>
-    </ShuttleModalFooter>
-  </ShuttleModalCard>
+    </div>
+  </>
+);
+
+const ShuttleCard = ({ shuttle }: { shuttle: ShuttleInfo }) => (
+  <TransportCard>
+    <TransportIcon>
+      <Bus />
+    </TransportIcon>
+    <div>
+      <TransportTitleRow>
+        <TransportTitle>전세버스 안내</TransportTitle>
+      </TransportTitleRow>
+      <ShuttleDetails shuttle={shuttle} />
+    </div>
+  </TransportCard>
 );
 
 const WriteSectionSubHeader = styled.div`
@@ -1667,7 +1567,6 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
   const [showEditTalkModal, setShowEditTalkModal] = useState<Talk>();
   const [showBrideContactModal, setShowBrideContactModal] = useState(false);
   const [showGroomContactModal, setShowGroomContactModal] = useState(false);
-  const [showShuttleModal, setShowShuttleModal] = useState(false);
   const [isWriteButtonShown, setWriteButtonShown] = useState(false);
   const [selectedTalkId, setSelectedTalkId] = useState<string>();
   const [selectedDirectionImage, setSelectedDirectionImage] =
@@ -1890,10 +1789,7 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
                   </div>
                 </TransportCard>
               ))}
-              <ShuttleCard
-                shuttle={c.shuttle}
-                onOpen={() => setShowShuttleModal(true)}
-              />
+              <ShuttleCard shuttle={c.shuttle} />
               {transportSections.slice(1).map((section) => (
                 <TransportCard key={section.title}>
                   <TransportIcon>{section.icon}</TransportIcon>
@@ -2040,14 +1936,6 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
             contacts={sideContent.groom.contacts}
             title={sideContent.groom.contactModalTitle}
             onClose={() => setShowGroomContactModal(false)}
-          />
-        </Modal>
-      )}
-      {showShuttleModal && (
-        <Modal handleClose={() => setShowShuttleModal(false)}>
-          <ShuttleModal
-            shuttle={c.shuttle}
-            onClose={() => setShowShuttleModal(false)}
           />
         </Modal>
       )}
