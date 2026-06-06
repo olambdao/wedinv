@@ -1687,13 +1687,45 @@ const GalleryModal = ({
   const [isZoomed, setZoomed] = useState(false);
   const [activeSlide, setActiveSlide] = useState(initialSlide);
   const sliderRef = useRef<Slider>(null);
+  const historyPushedRef = useRef(false);
   const isFirstSlide = activeSlide === 0;
   const isLastSlide = activeSlide === photos.length - 1;
 
   useEffect(() => {
+    if (!historyPushedRef.current) {
+      const currentState = window.history.state;
+      window.history.pushState(
+        { ...(currentState ?? {}), galleryModal: true },
+        "",
+        window.location.href
+      );
+      historyPushedRef.current = true;
+    }
+
+    const handlePopState = () => {
+      onClose();
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [onClose]);
+
+  const handleClose = useCallback(() => {
+    if (window.history.state?.galleryModal) {
+      window.history.back();
+      return;
+    }
+
+    onClose();
+  }, [onClose]);
+
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        onClose();
+        handleClose();
       } else if (event.key === "ArrowLeft" && !isFirstSlide) {
         sliderRef.current?.slickPrev();
       } else if (event.key === "ArrowRight" && !isLastSlide) {
@@ -1704,12 +1736,12 @@ const GalleryModal = ({
     window.addEventListener("keydown", handleKeyDown);
 
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isFirstSlide, isLastSlide, onClose]);
+  }, [handleClose, isFirstSlide, isLastSlide]);
 
   return (
     <GalleryModalOverlay role="dialog" aria-modal="true" aria-label="웨딩 사진">
       <GalleryModalCard>
-        <GalleryCloseButton type="button" onClick={onClose}>
+        <GalleryCloseButton type="button" onClick={handleClose}>
           닫기
         </GalleryCloseButton>
         <GalleryNavButton
