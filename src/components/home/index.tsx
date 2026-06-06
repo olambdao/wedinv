@@ -9,6 +9,7 @@ import {
   Pin,
   Train,
 } from "iconoir-react";
+import Image from "next/image";
 import React, {
   MouseEventHandler,
   useCallback,
@@ -609,19 +610,19 @@ const GalleryGrid = styled.div`
 `;
 
 const GalleryThumbButton = styled.button`
+  position: relative;
   display: block;
   width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
   padding: 0;
-  border: 0;
+  border: 1px solid ${T.rule};
   background: transparent;
   cursor: zoom-in;
 `;
 
-const GalleryPhoto = styled.img<{ $objectPosition?: string }>`
+const GalleryPhoto = styled(Image)<{ $objectPosition?: string }>`
   display: block;
-  width: 100%;
-  aspect-ratio: 1;
-  border: 1px solid ${T.rule};
   object-fit: cover;
   object-position: ${({ $objectPosition }) => $objectPosition ?? "center"};
 `;
@@ -694,12 +695,23 @@ const GallerySliderWrap = styled.div<{ $isZoomed: boolean }>`
 `;
 
 const GallerySlide = styled.div`
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 100%;
   overflow: hidden;
+
+  > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
 `;
 
-const GalleryZoomImage = styled.img`
+const GalleryZoomImage = styled(Image)`
   display: block;
   width: 100%;
   height: 100%;
@@ -1654,6 +1666,9 @@ const GalleryPinchPhoto = ({
         ref={imageRef}
         src={photo.url}
         alt=""
+        width={1600}
+        height={2400}
+        sizes="100vw"
         draggable={false}
       />
     </QuickPinchZoom>
@@ -2034,7 +2049,9 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
                   <GalleryPhoto
                     src={photo.url}
                     alt={`웨딩 사진 ${index + 1}`}
+                    fill
                     loading="lazy"
+                    sizes="(max-width: 400px) 33vw, 122px"
                     $objectPosition={photo.objectPosition}
                   />
                 </GalleryThumbButton>
