@@ -259,7 +259,7 @@ const InvitationHero = ({
   return (
     <Hero>
       <HeroInner>
-        <HeroKicker>We Invite You · 결혼합니다</HeroKicker>
+        <HeroKicker>We Invite You · 초대합니다</HeroKicker>
         <HeroTree src="/tree_transparent.png" alt="연리지 나무" />
 
         <HeroNames>
