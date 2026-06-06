@@ -125,10 +125,10 @@ const myContentSpec: ContentSpec = {
   brideContact: "tel:01073692869",
   galleryThumbPosition: {
     "p01.jpg": "center",
-    "p02.jpg": "center",
+    "p02.jpg": "bottom",
     "p03.jpg": "center",
     "p04.jpg": "center",
-    "p05.jpg": "center",
+    "p05.jpg": "bottom",
     "p06.jpg": "center",
     "p07.jpg": "center",
     "p08.jpg": "center",
