@@ -68,7 +68,7 @@ const myContentSpec: ContentSpec = {
   groomOgTitle: "임석의 · 김민지 청첩장",
   brideOgTitle: "김민지 · 임석의 청첩장",
   ogDesc: "2026년 6월 27일에 결혼합니다.",
-  ogImageUrl: "https://pub-541f6889b5904f0f90489aaa3c4c69fa.r2.dev/og.jpg", 
+  ogImageUrl: "https://pub-541f6889b5904f0f90489aaa3c4c69fa.r2.dev/og2.jpg", 
 
   groomFullName: "임석의",
   brideFullName: "김민지",
