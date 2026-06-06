@@ -3,6 +3,7 @@ import type { AppProps } from "next/app";
 import { useEffect } from "react";
 import { Reset } from "styled-reset";
 import { SWRConfig } from "swr";
+import "slick-carousel/slick/slick.css";
 import "../global.css";
 
 const swrConfig = {

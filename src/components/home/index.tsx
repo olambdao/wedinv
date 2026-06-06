@@ -20,6 +20,7 @@ import QuickPinchZoom, {
   make3dTransformValue,
   type UpdateAction,
 } from "react-quick-pinch-zoom";
+import Slider from "react-slick";
 import styled, { css } from "styled-components";
 import useSWR from "swr";
 
@@ -207,6 +208,8 @@ type DirectionImageInfo = {
   src: string;
   alt: string;
 };
+
+type GalleryPhotoInfo = NonNullable<Content["photos"]>[number];
 
 const directionImages: DirectionImageInfo[] = [
   { src: "/directions1.jpeg", alt: "오시는 길 안내 1" },
@@ -599,24 +602,183 @@ const GalleryContent = styled.div`
   padding: 0 16px;
 `;
 
+const GalleryGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+`;
+
+const GalleryThumbButton = styled.button`
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+`;
+
 const GalleryPhoto = styled.img<{ $objectPosition?: string }>`
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 1;
   border: 1px solid ${T.rule};
   object-fit: cover;
   object-position: ${({ $objectPosition }) => $objectPosition ?? "center"};
 `;
 
-const GalleryCount = styled.div`
-  margin-top: 14px;
-  color: ${T.inkMuted};
-  font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+const GalleryModalOverlay = styled.div`
+  position: fixed;
+  z-index: 130;
+  inset: 0;
+  overflow: hidden;
+  background: #14110d;
+`;
+
+const GalleryModalCard = styled.div`
+  position: relative;
+  width: 100vw;
+  height: 100svh;
+  overflow: hidden;
+  background: #14110d;
+`;
+
+const GalleryCloseButton = styled.button`
+  ${TextSansStyle}
+  position: absolute;
+  z-index: 3;
+  top: calc(12px + env(safe-area-inset-top));
+  right: 12px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 999px;
+  color: ${T.paper};
+  background: rgba(20, 17, 13, 0.72);
+  font-size: 12px;
+  line-height: 1.4;
+`;
+
+const GallerySliderWrap = styled.div<{ $isZoomed: boolean }>`
+  width: 100%;
+  height: 100%;
+
+  .slick-slider,
+  .slick-list,
+  .slick-track,
+  .slick-slide,
+  .slick-slide > div {
+    height: 100%;
+  }
+
+  .slick-track {
+    display: flex;
+  }
+
+  .slick-slide {
+    height: auto;
+
+    > div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    ${({ $isZoomed }) =>
+      $isZoomed &&
+      css`
+        &:not(.slick-active) {
+          visibility: hidden;
+        }
+      `}
+  }
+`;
+
+const GallerySlide = styled.div`
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+`;
+
+const GalleryZoomImage = styled.img`
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-origin: 0 0;
+  user-select: none;
+`;
+
+const GalleryNavButton = styled.button<{
+  $side: "left" | "right";
+  $hidden: boolean;
+}>`
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  ${({ $side }) => ($side === "left" ? "left: 10px;" : "right: 10px;")}
+  display: ${({ $hidden }) => ($hidden ? "none" : "inline-flex")};
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  color: ${T.paper};
+  background: rgba(20, 17, 13, 0.5);
+  transform: translateY(-50%);
+
+  svg {
+    width: 20px;
+    height: 20px;
+    transform: ${({ $side }) =>
+      $side === "left" ? "rotate(180deg)" : "none"};
+  }
+`;
+
+const GalleryStatus = styled.div`
+  ${TextSansStyle}
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  right: 0;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: ${T.paper};
+  font-size: 12px;
+  line-height: 1.4;
+  pointer-events: none;
+`;
+
+const GalleryDots = styled.div`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(20, 17, 13, 0.48);
+`;
+
+const GalleryDot = styled.span<{ $active: boolean }>`
+  width: ${({ $active }) => ($active ? "18px" : "6px")};
+  height: 6px;
+  border-radius: 999px;
+  background: ${({ $active }) =>
+    $active ? T.paper : "rgba(251, 248, 241, 0.42)"};
+  transition: width 180ms ease, background 180ms ease;
+`;
+
+const GalleryPageText = styled.div`
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(20, 17, 13, 0.48);
+  color: rgba(251, 248, 241, 0.88);
+  font-family: ${FM};
   font-size: 11px;
-  letter-spacing: 0.16em;
-  line-height: 1.5;
-  text-align: center;
-  text-transform: uppercase;
 `;
 
 const DirectionsWrap = styled.section`
@@ -1459,6 +1621,142 @@ const DirectionImageZoomModal = ({
   );
 };
 
+const GalleryPinchPhoto = ({
+  photo,
+  onZoomChange,
+}: {
+  photo: GalleryPhotoInfo;
+  onZoomChange: (isZoomed: boolean) => void;
+}) => {
+  const imageRef = useRef<HTMLImageElement>(null);
+
+  const handleUpdate = useCallback(
+    ({ x, y, scale }: UpdateAction) => {
+      imageRef.current?.style.setProperty(
+        "transform",
+        make3dTransformValue({ x, y, scale })
+      );
+      onZoomChange(scale > 1);
+    },
+    [onZoomChange]
+  );
+
+  return (
+    <QuickPinchZoom
+      key={photo.url}
+      onUpdate={handleUpdate}
+      maxZoom={4}
+      wheelScaleFactor={500}
+      draggableUnZoomed={false}
+      shouldInterceptWheel={() => true}
+    >
+      <GalleryZoomImage
+        ref={imageRef}
+        src={photo.url}
+        alt=""
+        draggable={false}
+      />
+    </QuickPinchZoom>
+  );
+};
+
+const GalleryModal = ({
+  initialSlide,
+  photos,
+  onClose,
+}: {
+  initialSlide: number;
+  photos: GalleryPhotoInfo[];
+  onClose: () => void;
+}) => {
+  const [isZoomed, setZoomed] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(initialSlide);
+  const sliderRef = useRef<Slider>(null);
+  const isFirstSlide = activeSlide === 0;
+  const isLastSlide = activeSlide === photos.length - 1;
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      } else if (event.key === "ArrowLeft" && !isFirstSlide) {
+        sliderRef.current?.slickPrev();
+      } else if (event.key === "ArrowRight" && !isLastSlide) {
+        sliderRef.current?.slickNext();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isFirstSlide, isLastSlide, onClose]);
+
+  return (
+    <GalleryModalOverlay role="dialog" aria-modal="true" aria-label="웨딩 사진">
+      <GalleryModalCard>
+        <GalleryCloseButton type="button" onClick={onClose}>
+          닫기
+        </GalleryCloseButton>
+        <GalleryNavButton
+          type="button"
+          aria-label="이전 사진"
+          $side="left"
+          $hidden={isZoomed || isFirstSlide}
+          onClick={() => sliderRef.current?.slickPrev()}
+        >
+          <ArrowRight />
+        </GalleryNavButton>
+        <GalleryNavButton
+          type="button"
+          aria-label="다음 사진"
+          $side="right"
+          $hidden={isZoomed || isLastSlide}
+          onClick={() => sliderRef.current?.slickNext()}
+        >
+          <ArrowRight />
+        </GalleryNavButton>
+        <GallerySliderWrap $isZoomed={isZoomed}>
+          <Slider
+            ref={sliderRef}
+            initialSlide={initialSlide}
+            slidesToShow={1}
+            slidesToScroll={1}
+            arrows={false}
+            dots={false}
+            infinite={false}
+            beforeChange={() => setZoomed(false)}
+            afterChange={(index) => setActiveSlide(index)}
+          >
+            {photos.map((photo) => (
+              <GallerySlide key={photo.url}>
+                <GalleryPinchPhoto
+                  photo={photo}
+                  onZoomChange={setZoomed}
+                />
+              </GallerySlide>
+            ))}
+          </Slider>
+        </GallerySliderWrap>
+        {!isZoomed && (
+          <GalleryStatus aria-hidden="true">
+            <GalleryDots>
+              {photos.map((photo, index) => (
+                <GalleryDot
+                  key={photo.url}
+                  $active={index === activeSlide}
+                />
+              ))}
+            </GalleryDots>
+            <GalleryPageText>
+              {activeSlide + 1} / {photos.length}
+            </GalleryPageText>
+          </GalleryStatus>
+        )}
+      </GalleryModalCard>
+    </GalleryModalOverlay>
+  );
+};
+
 const ThankYou = styled.div`
   padding: 60px;
   color: #666;
@@ -1571,6 +1869,7 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
   const [selectedTalkId, setSelectedTalkId] = useState<string>();
   const [selectedDirectionImage, setSelectedDirectionImage] =
     useState<DirectionImageInfo>();
+  const [selectedGalleryIndex, setSelectedGalleryIndex] = useState<number>();
   const [rsvpMetaText, setRsvpMetaText] = useState(
     `— by ${RSVP_DEADLINE.label} —`
   );
@@ -1597,6 +1896,10 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
     setSelectedTalkId(id);
   const handleDirectionImageZoomClose = useCallback(
     () => setSelectedDirectionImage(undefined),
+    []
+  );
+  const handleGalleryModalClose = useCallback(
+    () => setSelectedGalleryIndex(undefined),
     []
   );
 
@@ -1638,7 +1941,7 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
   const shouldShowRsvpCalendar = isInvitationVersion;
   const orderedSides = getOrderedInvitationSides(primarySide);
   const greetingParagraphs = c.greeting.content;
-  const galleryPhoto = c.photos?.[0];
+  const galleryPhotos = c.photos ?? [];
   const sideContent = {
     bride: {
       accountTitle: "신부측 계좌번호",
@@ -1713,19 +2016,30 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
           );
         })}
       </CallWrap>
-      {galleryPhoto && (
+      {galleryPhotos.length > 0 && (
         <GalleryWrap>
           <SectionHeader
             kicker="02 · Gallery"
             title="우리, 함께한 시간"
           />
           <GalleryContent>
-            <GalleryPhoto
-              src={galleryPhoto.url}
-              alt="웨딩 사진"
-              $objectPosition={galleryPhoto.objectPosition}
-            />
-            {/* <GalleryCount>— 1 photo —</GalleryCount> */}
+            <GalleryGrid>
+              {galleryPhotos.map((photo, index) => (
+                <GalleryThumbButton
+                  key={photo.url}
+                  type="button"
+                  aria-label={`웨딩 사진 ${index + 1} 확대`}
+                  onClick={() => setSelectedGalleryIndex(index)}
+                >
+                  <GalleryPhoto
+                    src={photo.url}
+                    alt={`웨딩 사진 ${index + 1}`}
+                    loading="lazy"
+                    $objectPosition={photo.objectPosition}
+                  />
+                </GalleryThumbButton>
+              ))}
+            </GalleryGrid>
           </GalleryContent>
         </GalleryWrap>
       )}
@@ -1914,6 +2228,13 @@ const Home = ({ content: c, variant, primarySide }: HomeProps) => {
         <DirectionImageZoomModal
           image={selectedDirectionImage}
           onClose={handleDirectionImageZoomClose}
+        />
+      )}
+      {selectedGalleryIndex !== undefined && (
+        <GalleryModal
+          initialSlide={selectedGalleryIndex}
+          photos={galleryPhotos}
+          onClose={handleGalleryModalClose}
         />
       )}
       {showWriteTalkModal && (

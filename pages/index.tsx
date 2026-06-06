@@ -49,7 +49,16 @@ const HomePage = ({ content: c, primarySide }: HomePageProps) => {
 export default HomePage;
 
 export const getStaticProps: GetStaticProps = () => {
-  const photos: Content["photos"] = [{ url: "/wed_photo.jpeg" }];
+  const photos: Content["photos"] = Array.from({ length: 9 }, (_, index) => {
+    const filename = `p${String(index + 1).padStart(2, "0")}.jpg`;
+
+    return {
+      url: `/photos/gallery/${filename}`,
+      ...(myContentSpec.galleryThumbPosition[filename]
+        ? { objectPosition: myContentSpec.galleryThumbPosition[filename] }
+        : {}),
+    };
+  });
 
   const content: Content = { ...myContentSpec, photos };
   const primarySide = parseInvitationSide(process.env.INVITATION_PRIMARY_SIDE);

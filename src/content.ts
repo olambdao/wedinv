@@ -123,7 +123,17 @@ const myContentSpec: ContentSpec = {
   },
   groomContact: "tel:01071056849",
   brideContact: "tel:01073692869",
-  galleryThumbPosition: {}, // e.g. { "p03.jpeg": "bottom" },
+  galleryThumbPosition: {
+    "p01.jpg": "center",
+    "p02.jpg": "center",
+    "p03.jpg": "center",
+    "p04.jpg": "center",
+    "p05.jpg": "center",
+    "p06.jpg": "center",
+    "p07.jpg": "center",
+    "p08.jpg": "center",
+    "p09.jpg": "center",
+  }, // e.g. { "p03.jpeg": "bottom" },
   groomGive: [
     { name: "임석의", account: "카카오뱅크 3333-28-6775167" },
     { name: "임영희", account: "하나은행 534-910057-49207" },
