@@ -36,6 +36,7 @@ export type ContentSpec = {
     notes: string[];
     contactName: string;
     contactPhone: string;
+    applicationUrl?: string;
   };
   rsvpFormUrl?: string;
   calendarEvent: {
@@ -92,8 +93,9 @@ const myContentSpec: ContentSpec = {
     ],
     contactName: "신랑측 박성혁",
     contactPhone: "010-4800-3045",
+    applicationUrl: "https://naver.me/G6RkWqPI",
   },
-  rsvpFormUrl: "https://forms.gle/zv89MsVR3hZoLN1VA",
+  rsvpFormUrl: "https://naver.me/G6RkWqPI",
   calendarEvent: {
     title: "임석의 ♡ 김민지 결혼식",
     start: "20260627T130000",

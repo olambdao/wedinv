@@ -1002,6 +1002,10 @@ const ShuttleNotesSection = styled.div`
   margin-top: 14px;
 `;
 
+const ShuttleApplicationButtonWrap = styled.div`
+  margin-top: 14px;
+`;
+
 const ShuttleNotesList = styled.ul`
   ${TextSansStyle}
   margin: 0;
@@ -1358,6 +1362,21 @@ const ShuttleDetails = ({ shuttle }: { shuttle: ShuttleInfo }) => (
             ))}
           </ShuttleNotesList>
         </ShuttleNotesSection>
+      )}
+      {shuttle.applicationUrl && (
+        <ShuttleApplicationButtonWrap>
+          <Btn
+            as="a"
+            href={shuttle.applicationUrl}
+            target="_blank"
+            rel="noreferrer"
+            $variant="primary"
+            $full
+          >
+            <ArrowRight />
+            버스 탑승 신청하기
+          </Btn>
+        </ShuttleApplicationButtonWrap>
       )}
     </div>
   </>
